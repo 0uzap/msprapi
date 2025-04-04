@@ -1,0 +1,312 @@
+
+swagger: "2.0"
+info:
+  description: "API COVID-19"
+  version: "1.0.0"
+  title: "COVID-19 API"
+host: "localhost:3002" 
+basePath: "/"
+schemes:
+  - "http"
+paths:
+  /covid_country:
+    get:
+      description: "Retourne toutes les données COVID par pays"
+      responses:
+        200:
+          description: "Données COVID par pays"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/CovidCountry"
+    post:
+      description: "Ajoute de nouvelles données COVID pour un pays"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Données à ajouter"
+          required: true
+          schema:
+            $ref: "#/definitions/CovidCountry"
+      responses:
+        201:
+          description: "Donnée ajoutée"
+          schema:
+            $ref: "#/definitions/CovidCountry"
+  
+  /covid_country/{id}:
+    get:
+      description: "Retourne les données COVID pour un pays spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Donnée COVID d'un pays spécifique"
+          schema:
+            $ref: "#/definitions/CovidCountry"
+    put:
+      description: "Met à jour les données COVID d'un pays spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Données à mettre à jour"
+          required: true
+          schema:
+            $ref: "#/definitions/CovidCountry"
+      responses:
+        200:
+          description: "Donnée mise à jour"
+    delete:
+      description: "Supprime les données COVID d'un pays spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Donnée supprimée"
+
+  /monkeypox_data:
+    get:
+      description: "Retourne toutes les données de monkeypox"
+      responses:
+        200:
+          description: "Données monkeypox"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/MonkeypoxData"
+    post:
+      description: "Ajoute de nouvelles données de monkeypox"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Données à ajouter"
+          required: true
+          schema:
+            $ref: "#/definitions/MonkeypoxData"
+      responses:
+        201:
+          description: "Donnée ajoutée"
+          schema:
+            $ref: "#/definitions/MonkeypoxData"
+  
+  /monkeypox_data/{id}:
+    get:
+      description: "Retourne les données de monkeypox pour un pays spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Donnée monkeypox d'un pays spécifique"
+          schema:
+            $ref: "#/definitions/MonkeypoxData"
+    put:
+      description: "Met à jour les données de monkeypox d'un pays spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Données à mettre à jour"
+          required: true
+          schema:
+            $ref: "#/definitions/MonkeypoxData"
+      responses:
+        200:
+          description: "Donnée mise à jour"
+    delete:
+      description: "Supprime les données de monkeypox d'un pays spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Donnée supprimée"
+
+  /coronavirus_daily:
+    get:
+      description: "Retourne toutes les données quotidiennes de coronavirus"
+      responses:
+        200:
+          description: "Données quotidiennes de coronavirus"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/CoronavirusDaily"
+    post:
+      description: "Ajoute de nouvelles données quotidiennes de coronavirus"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Données à ajouter"
+          required: true
+          schema:
+            $ref: "#/definitions/CoronavirusDaily"
+      responses:
+        201:
+          description: "Donnée ajoutée"
+          schema:
+            $ref: "#/definitions/CoronavirusDaily"
+  
+  /coronavirus_daily/{id}:
+    get:
+      description: "Retourne les données quotidiennes de coronavirus pour un jour spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Donnée quotidienne de coronavirus spécifique"
+          schema:
+            $ref: "#/definitions/CoronavirusDaily"
+    put:
+      description: "Met à jour les données quotidiennes de coronavirus pour un jour spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Données à mettre à jour"
+          required: true
+          schema:
+            $ref: "#/definitions/CoronavirusDaily"
+      responses:
+        200:
+          description: "Donnée mise à jour"
+    delete:
+      description: "Supprime les données quotidiennes de coronavirus pour un jour spécifique"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Donnée supprimée"
+
+definitions:
+  CovidCountry:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      country_region:
+        type: "string"
+      confirmed:
+        type: "integer"
+      deaths:
+        type: "integer"
+      recovered:
+        type: "integer"
+      active:
+        type: "integer"
+      new_cases:
+        type: "integer"
+      new_deaths:
+        type: "integer"
+      new_recovered:
+        type: "integer"
+      deaths_per_100_cases:
+        type: "number"
+        format: "float"
+      recovered_per_100_cases:
+        type: "number"
+        format: "float"
+      deaths_per_100_recovered:
+        type: "number"
+        format: "float"
+      confirmed_last_week:
+        type: "integer"
+      one_week_change:
+        type: "integer"
+      one_week_percentage_increase:
+        type: "number"
+        format: "float"
+      who_region:
+        type: "string"
+
+  MonkeypoxData:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      location:
+        type: "string"
+      iso_code:
+        type: "string"
+      date:
+        type: "string"
+        format: "date"
+      total_cases:
+        type: "integer"
+      total_deaths:
+        type: "integer"
+      new_cases:
+        type: "integer"
+      new_deaths:
+        type: "integer"
+      new_cases_smoothed:
+        type: "number"
+        format: "float"
+      new_deaths_smoothed:
+        type: "number"
+        format: "float"
+      new_cases_per_million:
+        type: "number"
+        format: "float"
+      total_cases_per_million:
+        type: "number"
+        format: "float"
+      new_cases_smoothed_per_million:
+        type: "number"
+        format: "float"
+      new_deaths_per_million:
+        type: "number"
+        format: "float"
+      total_deaths_per_million:
+        type: "number"
+        format: "float"
+      new_deaths_smoothed_per_million:
+        type: "number"
+        format: "float"
+
+  CoronavirusDaily:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      date:
+        type: "string"
+        format: "date"
+      country:
+        type: "string"
+      cumulative_total_cases:
+        type: "integer"
+      daily_new_cases:
+        type: "integer"
+      active_cases:
+        type: "integer"
+      cumulative_total_deaths:
+        type: "integer"
+      daily_new_deaths:
+        type: "integer"
