@@ -18,6 +18,7 @@ Avant de commencer, assurez-vous d'avoir installé les outils suivants :
 ```bash
 git clone <URL_DU_REPO>
 cd mspr
+npm install
 ```
 
 ### 2. Construire et démarrer les conteneurs
@@ -35,13 +36,6 @@ docker-compose up -d
 ```
 
 ---
-
-## Accès aux Services
-- **Documentation Swagger** : [http://localhost:3002/api-docs](http://localhost:3002/api-docs)
-- **PhpMyAdmin** : [http://localhost:8080](http://localhost:8080)
-
----
-
 ## Gestion de la Base de Données
 ### 1. Importer les tables dans la base de données
 - Copier le fichier SQL dans le conteneur MySQL :
@@ -60,7 +54,7 @@ docker exec -it mspr-db-1 mysql -uroot -prootpassword -e "SHOW TABLES;" bdd_mspr
 ---
 
 ## Importation des Données CSV
-### 1. Installer les dépendances
+### 1. Installer les dépendances à l'intérieur du conteneur
 ```bash
 npm install mysql2 csv-parser fs
 ```
@@ -85,7 +79,12 @@ docker exec -it mspr-api-1 bash -c "node import_csv.js"
 ```
 
 ---
+---
 
+## Accès aux Services
+- **Documentation Swagger** : [http://localhost:3002/api-docs](http://localhost:3002/api-docs)
+- **PhpMyAdmin** : [http://localhost:8080](http://localhost:8080)
 
+---
 
 
