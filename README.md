@@ -37,7 +37,6 @@ docker-compose up -d
 ---
 
 ## Accès aux Services
-- **API** : [http://localhost:3002](http://localhost:3002)
 - **Documentation Swagger** : [http://localhost:3002/api-docs](http://localhost:3002/api-docs)
 - **PhpMyAdmin** : [http://localhost:8080](http://localhost:8080)
 
