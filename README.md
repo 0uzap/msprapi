@@ -31,10 +31,6 @@ docker-compose up --build
 ```bash
 docker-compose up
 ```
-- Pour exécuter les conteneurs en arrière-plan (mode détaché) :
-```bash
-docker-compose up -d
-```
 
 ---
 ## Gestion de la Base de Données
