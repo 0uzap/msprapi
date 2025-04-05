@@ -58,9 +58,9 @@ docker cp import_csv.js mspr-api-1:/usr/src/app/import_csv.js
 # Créer le dossier de stockage et y copier les fichiers
 
 docker exec -it mspr-api-1 sh -c "mkdir -p /mnt/data"
-docker cp cheminDepuisVotrePC\country_wise_latest.csv msprapi-api-1:/mnt/data/country_wise_latest.csv
-docker cp cheminDepuisVotrePC\owid-monkeypox-data.csv msprapi-api-1:/mnt/data/owid-monkeypox-data.csv
-docker cp cheminDepuisVotrePC\worldometer_coronavirus_daily_data.csv msprapi-api-1:/mnt/data/worldometer_coronavirus_daily_data.csv
+docker cp [cheminDepuisVotrePC]\country_wise_latest.csv msprapi-api-1:/mnt/data/country_wise_latest.csv
+docker cp [cheminDepuisVotrePC]\owid-monkeypox-data.csv msprapi-api-1:/mnt/data/owid-monkeypox-data.csv
+docker cp [cheminDepuisVotrePC]\worldometer_coronavirus_daily_data.csv msprapi-api-1:/mnt/data/worldometer_coronavirus_daily_data.csv
 ```
 ### 2. Vérifier que les fichiers sont bien présents
 ```bash
