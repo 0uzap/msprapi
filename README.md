@@ -18,6 +18,7 @@ Avant de commencer, assurez-vous d'avoir installé les outils suivants :
 ```bash
 git clone <URL_DU_REPO>
 cd msprapi
+cd api
 npm install
 ```
 
