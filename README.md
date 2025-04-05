@@ -54,28 +54,24 @@ docker exec -it msprapi-db-1 mysql -uroot -prootpassword -e "SHOW TABLES;" bdd_m
 ---
 
 ## Importation des Données CSV
-### 1. Installer les dépendances à l'intérieur du conteneur
-```bash
-npm install mysql2 csv-parser fs
-```
-### 2. Copier les fichiers CSV dans le conteneur API
+### 1. Copier les fichiers CSV dans le conteneur API
 ```bash
 docker cp import_csv.js mspr-api-1:/usr/src/app/import_csv.js
 
 # Créer le dossier de stockage et y copier les fichiers
 
 docker exec -it mspr-api-1 sh -c "mkdir -p /mnt/data"
-docker cp country_wise_latest.csv mspr-api-1:/mnt/data/country_wise_latest.csv
-docker cp owid-monkeypox-data.csv mspr-api-1:/mnt/data/owid-monkeypox-data.csv
-docker cp worldometer_coronavirus_daily_data.csv mspr-api-1:/mnt/data/worldometer_coronavirus_daily_data.csv
+docker cp cheminDepuisVotrePC\country_wise_latest.csv msprapi-api-1:/mnt/data/country_wise_latest.csv
+docker cp cheminDepuisVotrePC\owid-monkeypox-data.csv msprapi-api-1:/mnt/data/owid-monkeypox-data.csv
+docker cp cheminDepuisVotrePC\worldometer_coronavirus_daily_data.csv msprapi-api-1:/mnt/data/worldometer_coronavirus_daily_data.csv
 ```
-### 3. Vérifier que les fichiers sont bien présents
+### 2. Vérifier que les fichiers sont bien présents
 ```bash
-docker exec -it mspr-api-1 sh -c "ls /mnt/data"
+docker exec -it msprapi-api-1 sh -c "ls /mnt/data"
 ```
-### 4. Exécuter le script d'importation des données
+### 3. Exécuter le script d'importation des données
 ```bash
-docker exec -it mspr-api-1 bash -c "node import_csv.js"
+docker exec -it msprapi-api-1 bash -c "node import_csv.js"
 ```
 
 ---
