@@ -40,15 +40,15 @@ docker-compose up -d
 ### 1. Importer les tables dans la base de données
 - Copier le fichier SQL dans le conteneur MySQL :
 ```bash
-docker cp create_tables.sql mspr-db-1:/tmp/create_tables.sql
+docker cp create_tables.sql msprapi-db-1:/tmp/create_tables.sql
 ```
 - Exécuter le script SQL pour créer les tables :
 ```bash
-docker exec -i mspr-db-1 sh -c 'cat /tmp/create_tables.sql | mysql -uroot -prootpassword bdd_mspr_api'
+docker exec -i msprapi-db-1 sh -c 'cat /tmp/create_tables.sql | mysql -uroot -prootpassword bdd_mspr_api'
 ```
 - Vérifier que les tables sont bien créées :
 ```bash
-docker exec -it mspr-db-1 mysql -uroot -prootpassword -e "SHOW TABLES;" bdd_mspr_api
+docker exec -it msprapi-db-1 mysql -uroot -prootpassword -e "SHOW TABLES;" bdd_mspr_api
 ```
 
 ---
