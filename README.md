@@ -17,7 +17,7 @@ Avant de commencer, assurez-vous d'avoir installé les outils suivants :
 ### 1. Cloner le projet
 ```bash
 git clone <URL_DU_REPO>
-cd mspr
+cd msprapi
 npm install
 ```
 
