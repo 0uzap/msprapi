@@ -1,0 +1,42 @@
+:root {
+    --mspr-blue: #007BFF;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    background-color: #f0f8ff;
+}
+
+header {
+    background-color: var(--mspr-blue);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+}
+
+.button-container {
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+    border: none;
+    background-color: var(--mspr-blue);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
