@@ -1,8 +1,8 @@
-# Dépendances Node.js
-node_modules/
-package-lock.json
+    # Dépendances Node.js
+    node_modules/
 
-# Logs et fichiers temporaires
-*.log
-*.tmp
+    # Logs et fichiers temporaires
+    *.log
+    *.tmp
 
+    ETL/*.csv

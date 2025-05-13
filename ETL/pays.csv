@@ -1,0 +1,261 @@
+id_pays,pays,idContinent
+1,Afghanistan,3
+2,Africa,0
+3,Albania,4
+4,Algeria,1
+5,Andorra,4
+6,Angola,1
+7,Anguilla,0
+8,Antigua And Barbuda,0
+9,Antigua and Barbuda,2
+10,Argentina,2
+11,Armenia,4
+12,Aruba,0
+13,Asia,0
+14,Australia,5
+15,Austria,4
+16,Azerbaijan,4
+17,Bahamas,2
+18,Bahrain,3
+19,Bangladesh,3
+20,Barbados,2
+21,Belarus,4
+22,Belgium,4
+23,Belize,2
+24,Benin,1
+25,Bermuda,0
+26,Bhutan,3
+27,Bolivia,2
+28,Bosnia And Herzegovina,0
+29,Bosnia and Herzegovina,4
+30,Botswana,1
+31,Brazil,2
+32,British Virgin Islands,0
+33,Brunei,5
+34,Brunei Darussalam,0
+35,Bulgaria,4
+36,Burkina Faso,1
+37,Burma,3
+38,Burundi,1
+39,Cabo Verde,1
+40,Cambodia,5
+41,Cameroon,1
+42,Canada,2
+43,Caribbean Netherlands,0
+44,Cayman Islands,0
+45,Central African Republic,1
+46,Chad,1
+47,Channel Islands,0
+48,Chile,2
+49,China,5
+50,China Hong Kong Sar,0
+51,China Macao Sar,0
+52,Colombia,2
+53,Comoros,1
+54,Congo,0
+55,Congo (Brazzaville),1
+56,Congo (Kinshasa),1
+57,Cook Islands,0
+58,Costa Rica,2
+59,Cote D Ivoire,0
+60,Cote d'Ivoire,1
+61,Croatia,4
+62,Cuba,2
+63,Curacao,0
+64,Cyprus,4
+65,Czech Republic,0
+66,Czechia,4
+67,Democratic Republic Of The Congo,0
+68,Democratic Republic of Congo,0
+69,Denmark,4
+70,Djibouti,3
+71,Dominica,2
+72,Dominican Republic,2
+73,Ecuador,2
+74,Egypt,3
+75,El Salvador,2
+76,Equatorial Guinea,1
+77,Eritrea,1
+78,Estonia,4
+79,Eswatini,1
+80,Ethiopia,1
+81,Europe,0
+82,Faeroe Islands,0
+83,Falkland Islands Malvinas,0
+84,Fiji,5
+85,Finland,4
+86,France,4
+87,French Guiana,0
+88,French Polynesia,0
+89,Gabon,1
+90,Gambia,1
+91,Georgia,4
+92,Germany,4
+93,Ghana,1
+94,Gibraltar,0
+95,Greece,4
+96,Greenland,4
+97,Grenada,2
+98,Guadeloupe,0
+99,Guam,0
+100,Guatemala,2
+101,Guinea,1
+102,Guinea Bissau,0
+103,Guinea-Bissau,1
+104,Guyana,2
+105,Haiti,2
+106,Holy See,4
+107,Honduras,2
+108,Hungary,4
+109,Iceland,4
+110,India,3
+111,Indonesia,3
+112,Iran,3
+113,Iraq,3
+114,Ireland,4
+115,Isle Of Man,0
+116,Israel,4
+117,Italy,4
+118,Jamaica,2
+119,Japan,5
+120,Jordan,3
+121,Kazakhstan,4
+122,Kenya,1
+123,Kiribati,0
+124,Kosovo,4
+125,Kuwait,3
+126,Kyrgyzstan,4
+127,Laos,5
+128,Latvia,4
+129,Lebanon,3
+130,Lesotho,1
+131,Liberia,1
+132,Libya,3
+133,Liechtenstein,4
+134,Lithuania,4
+135,Luxembourg,4
+136,Macedonia,0
+137,Madagascar,1
+138,Malawi,1
+139,Malaysia,5
+140,Maldives,3
+141,Mali,1
+142,Malta,4
+143,Marshall Islands,0
+144,Martinique,0
+145,Mauritania,1
+146,Mauritius,1
+147,Mayotte,0
+148,Mexico,2
+149,Micronesia,0
+150,Moldova,4
+151,Monaco,4
+152,Mongolia,5
+153,Montenegro,4
+154,Montserrat,0
+155,Morocco,3
+156,Mozambique,1
+157,Myanmar,0
+158,Namibia,1
+159,Nauru,0
+160,Nepal,3
+161,Netherlands,4
+162,New Caledonia,0
+163,New Zealand,5
+164,Nicaragua,2
+165,Niger,1
+166,Nigeria,1
+167,Niue,0
+168,North America,0
+169,North Macedonia,4
+170,Norway,4
+171,Oceania,0
+172,Oman,3
+173,Pakistan,3
+174,Palau,0
+175,Panama,2
+176,Papua New Guinea,5
+177,Paraguay,2
+178,Peru,2
+179,Philippines,5
+180,Poland,4
+181,Portugal,4
+182,Puerto Rico,0
+183,Qatar,3
+184,Reunion,0
+185,Romania,4
+186,Russia,4
+187,Rwanda,1
+188,Saint Barthelemy,0
+189,Saint Helena,0
+190,Saint Kitts And Nevis,0
+191,Saint Kitts and Nevis,2
+192,Saint Lucia,2
+193,Saint Martin,0
+194,Saint Martin (French part),0
+195,Saint Pierre And Miquelon,0
+196,Saint Vincent And The Grenadines,0
+197,Saint Vincent and the Grenadines,2
+198,Samoa,0
+199,San Marino,4
+200,Sao Tome And Principe,0
+201,Sao Tome and Principe,1
+202,Saudi Arabia,3
+203,Senegal,1
+204,Serbia,4
+205,Seychelles,1
+206,Sierra Leone,1
+207,Singapore,5
+208,Sint Maarten,0
+209,Slovakia,4
+210,Slovenia,4
+211,Solomon Islands,0
+212,Somalia,3
+213,South Africa,1
+214,South America,0
+215,South Korea,5
+216,South Sudan,1
+217,Spain,4
+218,Sri Lanka,3
+219,State Of Palestine,0
+220,Sudan,3
+221,Suriname,2
+222,Swaziland,0
+223,Sweden,4
+224,Switzerland,4
+225,Syria,3
+226,Taiwan,0
+227,Taiwan*,5
+228,Tajikistan,4
+229,Tanzania,1
+230,Thailand,3
+231,Timor Leste,0
+232,Timor-Leste,3
+233,Togo,1
+234,Tonga,0
+235,Trinidad And Tobago,0
+236,Trinidad and Tobago,2
+237,Tunisia,3
+238,Turkey,4
+239,Turks And Caicos Islands,0
+240,UK,0
+241,US,2
+242,USA,0
+243,Uganda,1
+244,Ukraine,4
+245,United Arab Emirates,3
+246,United Kingdom,4
+247,United States,0
+248,Uruguay,2
+249,Uzbekistan,4
+250,Vanuatu,0
+251,Venezuela,2
+252,Viet Nam,0
+253,Vietnam,5
+254,Wallis And Futuna Islands,0
+255,West Bank and Gaza,3
+256,Western Sahara,1
+257,World,0
+258,Yemen,3
+259,Zambia,1
+260,Zimbabwe,1
