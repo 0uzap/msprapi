@@ -1,9 +1,9 @@
 import pandas as pd
 
 # === Chargement des données sources ===
-monkeypox_df = pd.read_csv(r'C:/Users/lucas/Documents/MSPR/LOT1/Fichier_base/owid-monkeypox-data.csv')
-covid_global_df = pd.read_csv(r'C:/Users/lucas/Documents/MSPR/LOT1/Fichier_base/country_wise_latest.csv')
-covid_daily_df = pd.read_csv(r'C:/Users/lucas/Documents/MSPR/LOT1/Fichier_base/worldometer_coronavirus_daily_data.csv')
+monkeypox_df = pd.read_csv(r'./DATA/owid-monkeypox-data.csv')
+covid_global_df = pd.read_csv(r'./DATA/country_wise_latest.csv')
+covid_daily_df = pd.read_csv(r'./DATA/worldometer_coronavirus_daily_data.csv')
 
 # === Création de la table des continents ===
 region_to_continent = {
