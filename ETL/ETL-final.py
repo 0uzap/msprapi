@@ -120,6 +120,7 @@ data2.drop_duplicates(inplace=True)
 data2.fillna(0, inplace=True)
 data2 = ajouter_id_pays(data2, 'pays')
 data2.drop(columns=['WHO Region'], inplace=True)
+data2.replace([float('inf'), float('-inf')], 0, inplace=True)
 
 data2 = supprimer_lignes_vides(data2, colonnes_exclues_covid_global_df)
 
