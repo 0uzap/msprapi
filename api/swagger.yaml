@@ -1,17 +1,528 @@
 
+# swagger: "2.0"
+# info:
+#   description: "API COVID-19"
+#   version: "1.0.0"
+#   title: "COVID-19 API"
+# host: "localhost:3002" 
+# basePath: "/"
+# schemes:
+#   - "http"
+# paths:
+#   /covid_country:
+#     get:
+#       description: "Retourne toutes les données COVID par pays"
+#       responses:
+#         200:
+#           description: "Données COVID par pays"
+#           schema:
+#             type: "array"
+#             items:
+#               $ref: "#/definitions/CovidCountry"
+#     post:
+#       description: "Ajoute de nouvelles données COVID pour un pays"
+#       parameters:
+#         - in: "body"
+#           name: "body"
+#           description: "Données à ajouter"
+#           required: true
+#           schema:
+#             $ref: "#/definitions/CovidCountry"
+#       responses:
+#         201:
+#           description: "Donnée ajoutée"
+#           schema:
+#             $ref: "#/definitions/CovidCountry"
+  
+#   /covid_country/{id}:
+#     get:
+#       description: "Retourne les données COVID pour un pays spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#       responses:
+#         200:
+#           description: "Donnée COVID d'un pays spécifique"
+#           schema:
+#             $ref: "#/definitions/CovidCountry"
+#     put:
+#       description: "Met à jour les données COVID d'un pays spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#         - in: "body"
+#           name: "body"
+#           description: "Données à mettre à jour"
+#           required: true
+#           schema:
+#             $ref: "#/definitions/CovidCountry"
+#       responses:
+#         200:
+#           description: "Donnée mise à jour"
+#     delete:
+#       description: "Supprime les données COVID d'un pays spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#       responses:
+#         200:
+#           description: "Donnée supprimée"
+
+#   /monkeypox_data:
+#     get:
+#       description: "Retourne toutes les données de monkeypox"
+#       responses:
+#         200:
+#           description: "Données monkeypox"
+#           schema:
+#             type: "array"
+#             items:
+#               $ref: "#/definitions/MonkeypoxData"
+#     post:
+#       description: "Ajoute de nouvelles données de monkeypox"
+#       parameters:
+#         - in: "body"
+#           name: "body"
+#           description: "Données à ajouter"
+#           required: true
+#           schema:
+#             $ref: "#/definitions/MonkeypoxData"
+#       responses:
+#         201:
+#           description: "Donnée ajoutée"
+#           schema:
+#             $ref: "#/definitions/MonkeypoxData"
+  
+#   /monkeypox_data/{id}:
+#     get:
+#       description: "Retourne les données de monkeypox pour un pays spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#       responses:
+#         200:
+#           description: "Donnée monkeypox d'un pays spécifique"
+#           schema:
+#             $ref: "#/definitions/MonkeypoxData"
+#     put:
+#       description: "Met à jour les données de monkeypox d'un pays spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#         - in: "body"
+#           name: "body"
+#           description: "Données à mettre à jour"
+#           required: true
+#           schema:
+#             $ref: "#/definitions/MonkeypoxData"
+#       responses:
+#         200:
+#           description: "Donnée mise à jour"
+#     delete:
+#       description: "Supprime les données de monkeypox d'un pays spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#       responses:
+#         200:
+#           description: "Donnée supprimée"
+
+#   /coronavirus_daily:
+#     get:
+#       description: "Retourne toutes les données quotidiennes de coronavirus"
+#       responses:
+#         200:
+#           description: "Données quotidiennes de coronavirus"
+#           schema:
+#             type: "array"
+#             items:
+#               $ref: "#/definitions/CoronavirusDaily"
+#     post:
+#       description: "Ajoute de nouvelles données quotidiennes de coronavirus"
+#       parameters:
+#         - in: "body"
+#           name: "body"
+#           description: "Données à ajouter"
+#           required: true
+#           schema:
+#             $ref: "#/definitions/CoronavirusDaily"
+#       responses:
+#         201:
+#           description: "Donnée ajoutée"
+#           schema:
+#             $ref: "#/definitions/CoronavirusDaily"
+  
+#   /coronavirus_daily/{id}:
+#     get:
+#       description: "Retourne les données quotidiennes de coronavirus pour un jour spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#       responses:
+#         200:
+#           description: "Donnée quotidienne de coronavirus spécifique"
+#           schema:
+#             $ref: "#/definitions/CoronavirusDaily"
+#     put:
+#       description: "Met à jour les données quotidiennes de coronavirus pour un jour spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#         - in: "body"
+#           name: "body"
+#           description: "Données à mettre à jour"
+#           required: true
+#           schema:
+#             $ref: "#/definitions/CoronavirusDaily"
+#       responses:
+#         200:
+#           description: "Donnée mise à jour"
+#     delete:
+#       description: "Supprime les données quotidiennes de coronavirus pour un jour spécifique"
+#       parameters:
+#         - name: "id"
+#           in: "path"
+#           required: true
+#           type: "integer"
+#       responses:
+#         200:
+#           description: "Donnée supprimée"
+
+# definitions:
+#   CovidCountry:
+#     type: "object"
+#     properties:
+#       id:
+#         type: "integer"
+#       country_region:
+#         type: "string"
+#       confirmed:
+#         type: "integer"
+#       deaths:
+#         type: "integer"
+#       recovered:
+#         type: "integer"
+#       active:
+#         type: "integer"
+#       new_cases:
+#         type: "integer"
+#       new_deaths:
+#         type: "integer"
+#       new_recovered:
+#         type: "integer"
+#       deaths_per_100_cases:
+#         type: "number"
+#         format: "float"
+#       recovered_per_100_cases:
+#         type: "number"
+#         format: "float"
+#       deaths_per_100_recovered:
+#         type: "number"
+#         format: "float"
+#       confirmed_last_week:
+#         type: "integer"
+#       one_week_change:
+#         type: "integer"
+#       one_week_percentage_increase:
+#         type: "number"
+#         format: "float"
+#       who_region:
+#         type: "string"
+
+#   MonkeypoxData:
+#     type: "object"
+#     properties:
+#       id:
+#         type: "integer"
+#       location:
+#         type: "string"
+#       iso_code:
+#         type: "string"
+#       date:
+#         type: "string"
+#         format: "date"
+#       total_cases:
+#         type: "integer"
+#       total_deaths:
+#         type: "integer"
+#       new_cases:
+#         type: "integer"
+#       new_deaths:
+#         type: "integer"
+#       new_cases_smoothed:
+#         type: "number"
+#         format: "float"
+#       new_deaths_smoothed:
+#         type: "number"
+#         format: "float"
+#       new_cases_per_million:
+#         type: "number"
+#         format: "float"
+#       total_cases_per_million:
+#         type: "number"
+#         format: "float"
+#       new_cases_smoothed_per_million:
+#         type: "number"
+#         format: "float"
+#       new_deaths_per_million:
+#         type: "number"
+#         format: "float"
+#       total_deaths_per_million:
+#         type: "number"
+#         format: "float"
+#       new_deaths_smoothed_per_million:
+#         type: "number"
+#         format: "float"
+
+#   CoronavirusDaily:
+#     type: "object"
+#     properties:
+#       id:
+#         type: "integer"
+#       date:
+#         type: "string"
+#         format: "date"
+#       country:
+#         type: "string"
+#       cumulative_total_cases:
+#         type: "integer"
+#       daily_new_cases:
+#         type: "integer"
+#       active_cases:
+#         type: "integer"
+#       cumulative_total_deaths:
+#         type: "integer"
+#       daily_new_deaths:
+#         type: "integer"
+
+# swagger: "2.0"
+# info:
+#   description: "API COVID-19"
+#   version: "1.0.0"
+#   title: "COVID-19 API"
+# host: "localhost:3002" 
+# basePath: "/"
+# schemes:
+#   - "http"
+# paths:
+
+
 swagger: "2.0"
 info:
-  description: "API COVID-19"
+  description: "API COVID-19 et Monkeypox avec gestion des Continents et Pays"
   version: "1.0.0"
-  title: "COVID-19 API"
+  title: "API COVID-19 & Monkeypox"
 host: "localhost:3002" 
 basePath: "/"
 schemes:
   - "http"
+tags:
+  - name: "Continents"
+    description: "Opérations sur les continents"
+  - name: "Pays"
+    description: "Opérations sur les pays"
+  - name: "CovidCountry"
+    description: "Données COVID par pays"
+  - name: "MonkeypoxData"
+    description: "Données Monkeypox"
+  - name: "CoronavirusDaily"
+    description: "Données Coronavirus journalières"
 paths:
+  /continents:
+    get:
+      tags: [Continents]
+      summary: "Récupère la liste de tous les continents"
+      description: "Retourne toutes les entrées de la table 'continent'."
+      responses:
+        200:
+          description: "Liste des continents"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Continent"
+    post:
+      tags: [Continents]
+      summary: "Crée un nouveau continent"
+      description: "Ajoute une nouvelle entrée dans la table 'continent'."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Objet continent à ajouter"
+          required: true
+          schema:
+            $ref: "#/definitions/Continent"
+      responses:
+        201:
+          description: "Continent créé avec succès"
+          schema:
+            $ref: "#/definitions/Continent"
+        400:
+          description: "Requête invalide"
+  /continents/{idContinent}:
+    get:
+      tags: [Continents]
+      summary: "Récupère un continent par son ID"
+      description: "Retourne les détails d'un continent spécifique."
+      parameters:
+        - name: "idContinent"
+          in: "path"
+          description: "ID du continent à récupérer"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Détails du continent"
+          schema:
+            $ref: "#/definitions/Continent"
+        404:
+          description: "Continent non trouvé"
+    put:
+      tags: [Continents]
+      summary: "Met à jour un continent existant"
+      description: "Met à jour les détails d'un continent par son ID."
+      parameters:
+        - name: "idContinent"
+          in: "path"
+          description: "ID du continent à mettre à jour"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Objet continent avec les données à mettre à jour"
+          required: true
+          schema:
+            $ref: "#/definitions/Continent"
+      responses:
+        200:
+          description: "Continent mis à jour avec succès"
+        400:
+          description: "Requête invalide"
+        404:
+          description: "Continent non trouvé"
+    delete:
+      tags: [Continents]
+      summary: "Supprime un continent"
+      description: "Supprime un continent par son ID."
+      parameters:
+        - name: "idContinent"
+          in: "path"
+          description: "ID du continent à supprimer"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Continent supprimé avec succès"
+        404:
+          description: "Continent non trouvé"
+
+  /pays:
+    get:
+      tags: [Pays]
+      summary: "Récupère la liste de tous les pays"
+      description: "Retourne toutes les entrées de la table 'pays', incluant le nom du continent."
+      responses:
+        200:
+          description: "Liste des pays"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Pays"
+    post:
+      tags: [Pays]
+      summary: "Crée un nouveau pays"
+      description: "Ajoute une nouvelle entrée dans la table 'pays'."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Objet pays à ajouter"
+          required: true
+          schema:
+            $ref: "#/definitions/PaysInput" # Utilisation d'un schéma d'input pour éviter l'ID généré
+      responses:
+        201:
+          description: "Pays créé avec succès"
+          schema:
+            $ref: "#/definitions/Pays"
+        400:
+          description: "Requête invalide"
+  /pays/{id_pays}:
+    get:
+      tags: [Pays]
+      summary: "Récupère un pays par son ID"
+      description: "Retourne les détails d'un pays spécifique, incluant le nom du continent."
+      parameters:
+        - name: "id_pays"
+          in: "path"
+          description: "ID du pays à récupérer"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Détails du pays"
+          schema:
+            $ref: "#/definitions/Pays"
+        404:
+          description: "Pays non trouvé"
+    put:
+      tags: [Pays]
+      summary: "Met à jour un pays existant"
+      description: "Met à jour les détails d'un pays par son ID."
+      parameters:
+        - name: "id_pays"
+          in: "path"
+          description: "ID du pays à mettre à jour"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Objet pays avec les données à mettre à jour"
+          required: true
+          schema:
+            $ref: "#/definitions/PaysInput"
+      responses:
+        200:
+          description: "Pays mis à jour avec succès"
+        400:
+          description: "Requête invalide"
+        404:
+          description: "Pays non trouvé"
+    delete:
+      tags: [Pays]
+      summary: "Supprime un pays"
+      description: "Supprime un pays par son ID."
+      parameters:
+        - name: "id_pays"
+          in: "path"
+          description: "ID du pays à supprimer"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Pays supprimé avec succès"
+        404:
+          description: "Pays non trouvé"
+
   /covid_country:
     get:
-      description: "Retourne toutes les données COVID par pays"
+      tags: [CovidCountry]
+      summary: "Récupère toutes les données COVID par pays"
+      description: "Retourne toutes les entrées de la table 'covid_country', incluant les noms du pays et du continent."
       responses:
         200:
           description: "Données COVID par pays"
@@ -20,23 +531,28 @@ paths:
             items:
               $ref: "#/definitions/CovidCountry"
     post:
-      description: "Ajoute de nouvelles données COVID pour un pays"
+      tags: [CovidCountry]
+      summary: "Ajoute de nouvelles données COVID pour un pays"
+      description: "Ajoute une nouvelle entrée dans la table 'covid_country'."
       parameters:
         - in: "body"
           name: "body"
-          description: "Données à ajouter"
+          description: "Données COVID à ajouter"
           required: true
           schema:
-            $ref: "#/definitions/CovidCountry"
+            $ref: "#/definitions/CovidCountryInput"
       responses:
         201:
-          description: "Donnée ajoutée"
+          description: "Donnée ajoutée avec succès"
           schema:
             $ref: "#/definitions/CovidCountry"
-  
+        400:
+          description: "Requête invalide"
   /covid_country/{id}:
     get:
-      description: "Retourne les données COVID pour un pays spécifique"
+      tags: [CovidCountry]
+      summary: "Récupère les données COVID pour un pays spécifique"
+      description: "Retourne les détails d'une entrée 'covid_country' par son ID, incluant les noms du pays et du continent."
       parameters:
         - name: "id"
           in: "path"
@@ -47,8 +563,12 @@ paths:
           description: "Donnée COVID d'un pays spécifique"
           schema:
             $ref: "#/definitions/CovidCountry"
+        404:
+          description: "Donnée non trouvée"
     put:
-      description: "Met à jour les données COVID d'un pays spécifique"
+      tags: [CovidCountry]
+      summary: "Met à jour les données COVID d'un pays spécifique"
+      description: "Met à jour les détails d'une entrée 'covid_country' par son ID."
       parameters:
         - name: "id"
           in: "path"
@@ -59,12 +579,18 @@ paths:
           description: "Données à mettre à jour"
           required: true
           schema:
-            $ref: "#/definitions/CovidCountry"
+            $ref: "#/definitions/CovidCountryInput"
       responses:
         200:
-          description: "Donnée mise à jour"
+          description: "Donnée mise à jour avec succès"
+        400:
+          description: "Requête invalide"
+        404:
+          description: "Donnée non trouvée"
     delete:
-      description: "Supprime les données COVID d'un pays spécifique"
+      tags: [CovidCountry]
+      summary: "Supprime les données COVID d'un pays spécifique"
+      description: "Supprime une entrée 'covid_country' par son ID."
       parameters:
         - name: "id"
           in: "path"
@@ -72,11 +598,15 @@ paths:
           type: "integer"
       responses:
         200:
-          description: "Donnée supprimée"
+          description: "Donnée supprimée avec succès"
+        404:
+          description: "Donnée non trouvée"
 
   /monkeypox_data:
     get:
-      description: "Retourne toutes les données de monkeypox"
+      tags: [MonkeypoxData]
+      summary: "Récupère toutes les données de monkeypox"
+      description: "Retourne toutes les entrées de la table 'monkeypox_data', incluant les noms du pays et du continent."
       responses:
         200:
           description: "Données monkeypox"
@@ -85,23 +615,28 @@ paths:
             items:
               $ref: "#/definitions/MonkeypoxData"
     post:
-      description: "Ajoute de nouvelles données de monkeypox"
+      tags: [MonkeypoxData]
+      summary: "Ajoute de nouvelles données de monkeypox"
+      description: "Ajoute une nouvelle entrée dans la table 'monkeypox_data'."
       parameters:
         - in: "body"
           name: "body"
-          description: "Données à ajouter"
+          description: "Données Monkeypox à ajouter"
           required: true
           schema:
-            $ref: "#/definitions/MonkeypoxData"
+            $ref: "#/definitions/MonkeypoxDataInput"
       responses:
         201:
-          description: "Donnée ajoutée"
+          description: "Donnée ajoutée avec succès"
           schema:
             $ref: "#/definitions/MonkeypoxData"
-  
+        400:
+          description: "Requête invalide"
   /monkeypox_data/{id}:
     get:
-      description: "Retourne les données de monkeypox pour un pays spécifique"
+      tags: [MonkeypoxData]
+      summary: "Récupère les données de monkeypox pour un enregistrement spécifique"
+      description: "Retourne les détails d'une entrée 'monkeypox_data' par son ID, incluant les noms du pays et du continent."
       parameters:
         - name: "id"
           in: "path"
@@ -109,11 +644,15 @@ paths:
           type: "integer"
       responses:
         200:
-          description: "Donnée monkeypox d'un pays spécifique"
+          description: "Donnée monkeypox spécifique"
           schema:
             $ref: "#/definitions/MonkeypoxData"
+        404:
+          description: "Donnée non trouvée"
     put:
-      description: "Met à jour les données de monkeypox d'un pays spécifique"
+      tags: [MonkeypoxData]
+      summary: "Met à jour les données de monkeypox pour un enregistrement spécifique"
+      description: "Met à jour les détails d'une entrée 'monkeypox_data' par son ID."
       parameters:
         - name: "id"
           in: "path"
@@ -124,12 +663,18 @@ paths:
           description: "Données à mettre à jour"
           required: true
           schema:
-            $ref: "#/definitions/MonkeypoxData"
+            $ref: "#/definitions/MonkeypoxDataInput"
       responses:
         200:
-          description: "Donnée mise à jour"
+          description: "Donnée mise à jour avec succès"
+        400:
+          description: "Requête invalide"
+        404:
+          description: "Donnée non trouvée"
     delete:
-      description: "Supprime les données de monkeypox d'un pays spécifique"
+      tags: [MonkeypoxData]
+      summary: "Supprime les données de monkeypox pour un enregistrement spécifique"
+      description: "Supprime une entrée 'monkeypox_data' par son ID."
       parameters:
         - name: "id"
           in: "path"
@@ -137,11 +682,15 @@ paths:
           type: "integer"
       responses:
         200:
-          description: "Donnée supprimée"
+          description: "Donnée supprimée avec succès"
+        404:
+          description: "Donnée non trouvée"
 
   /coronavirus_daily:
     get:
-      description: "Retourne toutes les données quotidiennes de coronavirus"
+      tags: [CoronavirusDaily]
+      summary: "Récupère toutes les données quotidiennes de coronavirus"
+      description: "Retourne toutes les entrées de la table 'coronavirus_daily', incluant les noms du pays et du continent."
       responses:
         200:
           description: "Données quotidiennes de coronavirus"
@@ -150,23 +699,28 @@ paths:
             items:
               $ref: "#/definitions/CoronavirusDaily"
     post:
-      description: "Ajoute de nouvelles données quotidiennes de coronavirus"
+      tags: [CoronavirusDaily]
+      summary: "Ajoute de nouvelles données quotidiennes de coronavirus"
+      description: "Ajoute une nouvelle entrée dans la table 'coronavirus_daily'."
       parameters:
         - in: "body"
           name: "body"
-          description: "Données à ajouter"
+          description: "Données Coronavirus quotidiennes à ajouter"
           required: true
           schema:
-            $ref: "#/definitions/CoronavirusDaily"
+            $ref: "#/definitions/CoronavirusDailyInput"
       responses:
         201:
-          description: "Donnée ajoutée"
+          description: "Donnée ajoutée avec succès"
           schema:
             $ref: "#/definitions/CoronavirusDaily"
-  
+        400:
+          description: "Requête invalide"
   /coronavirus_daily/{id}:
     get:
-      description: "Retourne les données quotidiennes de coronavirus pour un jour spécifique"
+      tags: [CoronavirusDaily]
+      summary: "Récupère les données quotidiennes de coronavirus pour un enregistrement spécifique"
+      description: "Retourne les détails d'une entrée 'coronavirus_daily' par son ID, incluant les noms du pays et du continent."
       parameters:
         - name: "id"
           in: "path"
@@ -177,8 +731,12 @@ paths:
           description: "Donnée quotidienne de coronavirus spécifique"
           schema:
             $ref: "#/definitions/CoronavirusDaily"
+        404:
+          description: "Donnée non trouvée"
     put:
-      description: "Met à jour les données quotidiennes de coronavirus pour un jour spécifique"
+      tags: [CoronavirusDaily]
+      summary: "Met à jour les données quotidiennes de coronavirus pour un enregistrement spécifique"
+      description: "Met à jour les détails d'une entrée 'coronavirus_daily' par son ID."
       parameters:
         - name: "id"
           in: "path"
@@ -189,12 +747,18 @@ paths:
           description: "Données à mettre à jour"
           required: true
           schema:
-            $ref: "#/definitions/CoronavirusDaily"
+            $ref: "#/definitions/CoronavirusDailyInput"
       responses:
         200:
-          description: "Donnée mise à jour"
+          description: "Donnée mise à jour avec succès"
+        400:
+          description: "Requête invalide"
+        404:
+          description: "Donnée non trouvée"
     delete:
-      description: "Supprime les données quotidiennes de coronavirus pour un jour spécifique"
+      tags: [CoronavirusDaily]
+      summary: "Supprime les données quotidiennes de coronavirus pour un enregistrement spécifique"
+      description: "Supprime une entrée 'coronavirus_daily' par son ID."
       parameters:
         - name: "id"
           in: "path"
@@ -202,111 +766,322 @@ paths:
           type: "integer"
       responses:
         200:
-          description: "Donnée supprimée"
+          description: "Donnée supprimée avec succès"
+        404:
+          description: "Donnée non trouvée"
 
 definitions:
+  Continent:
+    type: "object"
+    properties:
+      idContinent:
+        type: "integer"
+        description: "ID du continent (clé primaire)"
+      continent:
+        type: "string"
+        description: "Nom du continent"
+    required:
+      - idContinent
+      - continent
+
+  Pays:
+    type: "object"
+    properties:
+      id_pays:
+        type: "integer"
+        description: "ID du pays (clé primaire)"
+      pays:
+        type: "string"
+        description: "Nom du pays"
+      idContinent:
+        type: "integer"
+        description: "ID du continent associé"
+      continent:
+        type: "string"
+        description: "Nom du continent (jointure, lecture seule)"
+    required:
+      - id_pays
+      - pays
+      - idContinent
+
+  PaysInput: # Schéma pour les requêtes POST/PUT sans l'ID généré automatiquement
+    type: "object"
+    properties:
+      id_pays:
+        type: "integer"
+        description: "ID du pays (clé primaire)"
+      pays:
+        type: "string"
+        description: "Nom du pays"
+      idContinent:
+        type: "integer"
+        description: "ID du continent associé"
+    required:
+      - id_pays
+      - pays
+      - idContinent
+
   CovidCountry:
     type: "object"
     properties:
       id:
         type: "integer"
-      country_region:
+        description: "ID de l'enregistrement (clé primaire auto-générée)"
+      nbCas:
+        type: "integer"
+        description: "Nombre de cas confirmés"
+      nbMort:
+        type: "integer"
+        description: "Nombre de décès"
+      nbSoigne:
+        type: "integer"
+        description: "Nombre de cas rétablis"
+      nbActif:
+        type: "integer"
+        description: "Nombre de cas actifs"
+      nbNewCas:
+        type: "integer"
+        description: "Nouveaux cas"
+      nbNewMort:
+        type: "integer"
+        description: "Nouveaux décès"
+      nbNewSoigne:
+        type: "integer"
+        description: "Nouveaux cas rétablis"
+      mort100cas:
+        type: "number"
+        format: "float"
+        description: "Taux de mortalité pour 100 cas"
+      soigne100cas:
+        type: "number"
+        format: "float"
+        description: "Taux de rétablissement pour 100 cas"
+      mort100soigne:
+        type: "number"
+        format: "float"
+        description: "Taux de mortalité pour 100 cas rétablis"
+      derniereSemaineConfirme:
+        type: "integer"
+        description: "Cas confirmés la semaine dernière"
+      changementSemaine:
+        type: "integer"
+        description: "Changement sur une semaine"
+      pourcentageAugmentationSemaine:
+        type: "number"
+        format: "float"
+        description: "Pourcentage d'augmentation sur une semaine"
+      continent:
         type: "string"
-      confirmed:
+        description: "Nom du continent (jointure, lecture seule)"
+      id_pays:
         type: "integer"
-      deaths:
+        description: "ID du pays associé"
+      idContinent:
         type: "integer"
-      recovered:
-        type: "integer"
-      active:
-        type: "integer"
-      new_cases:
-        type: "integer"
-      new_deaths:
-        type: "integer"
-      new_recovered:
-        type: "integer"
-      deaths_per_100_cases:
-        type: "number"
-        format: "float"
-      recovered_per_100_cases:
-        type: "number"
-        format: "float"
-      deaths_per_100_recovered:
-        type: "number"
-        format: "float"
-      confirmed_last_week:
-        type: "integer"
-      one_week_change:
-        type: "integer"
-      one_week_percentage_increase:
-        type: "number"
-        format: "float"
-      who_region:
+        description: "ID du continent associé"
+      pays:
         type: "string"
+        description: "Nom du pays (jointure, lecture seule)"
+    required:
+      - nbCas
+      - nbMort
+      - nbSoigne
+      - id_pays
+      - idContinent
+
+  CovidCountryInput: # Schéma pour les requêtes POST/PUT
+    type: "object"
+    properties:
+      nbCas:
+        type: "integer"
+      nbMort:
+        type: "integer"
+      nbSoigne:
+        type: "integer"
+      nbActif:
+        type: "integer"
+      nbNewCas:
+        type: "integer"
+      nbNewMort:
+        type: "integer"
+      nbNewSoigne:
+        type: "integer"
+      mort100cas:
+        type: "number"
+        format: "float"
+      soigne100cas:
+        type: "number"
+        format: "float"
+      mort100soigne:
+        type: "number"
+        format: "float"
+      derniereSemaineConfirme:
+        type: "integer"
+      changementSemaine:
+        type: "integer"
+      pourcentageAugmentationSemaine:
+        type: "number"
+        format: "float"
+      continent:
+        type: "string"
+      id_pays:
+        type: "integer"
+      idContinent:
+        type: "integer"
+    required:
+      - nbCas
+      - nbMort
+      - nbSoigne
+      - id_pays
+      - idContinent
 
   MonkeypoxData:
     type: "object"
     properties:
       id:
         type: "integer"
-      location:
-        type: "string"
-      iso_code:
-        type: "string"
+        description: "ID de l'enregistrement (clé primaire auto-générée)"
       date:
         type: "string"
         format: "date"
-      total_cases:
+        description: "Date de l'enregistrement"
+      nbCasTotaux:
         type: "integer"
-      total_deaths:
+        description: "Nombre total de cas de monkeypox"
+      nbMortTotaux:
         type: "integer"
-      new_cases:
+        description: "Nombre total de décès dus au monkeypox"
+      nbNouveauCas:
         type: "integer"
-      new_deaths:
+        description: "Nouveaux cas de monkeypox"
+      nbNouvelleMort:
         type: "integer"
-      new_cases_smoothed:
+        description: "Nouvelles morts dues au monkeypox"
+      moyenneNouveauCas:
         type: "number"
         format: "float"
-      new_deaths_smoothed:
+        description: "Moyenne des nouveaux cas lissée"
+      moyenneNouvelleMort:
         type: "number"
         format: "float"
-      new_cases_per_million:
+        description: "Moyenne des nouvelles morts lissée"
+      id_pays:
+        type: "integer"
+        description: "ID du pays associé"
+      idContinent:
+        type: "integer"
+        description: "ID du continent associé"
+      pays:
+        type: "string"
+        description: "Nom du pays (jointure, lecture seule)"
+      continent:
+        type: "string"
+        description: "Nom du continent (jointure, lecture seule)"
+    required:
+      - date
+      - nbCasTotaux
+      - nbMortTotaux
+      - id_pays
+      - idContinent
+
+  MonkeypoxDataInput: # Schéma pour les requêtes POST/PUT
+    type: "object"
+    properties:
+      date:
+        type: "string"
+        format: "date"
+      nbCasTotaux:
+        type: "integer"
+      nbMortTotaux:
+        type: "integer"
+      nbNouveauCas:
+        type: "integer"
+      nbNouvelleMort:
+        type: "integer"
+      moyenneNouveauCas:
         type: "number"
         format: "float"
-      total_cases_per_million:
+      moyenneNouvelleMort:
         type: "number"
         format: "float"
-      new_cases_smoothed_per_million:
-        type: "number"
-        format: "float"
-      new_deaths_per_million:
-        type: "number"
-        format: "float"
-      total_deaths_per_million:
-        type: "number"
-        format: "float"
-      new_deaths_smoothed_per_million:
-        type: "number"
-        format: "float"
+      id_pays:
+        type: "integer"
+      idContinent:
+        type: "integer"
+    required:
+      - date
+      - nbCasTotaux
+      - nbMortTotaux
+      - id_pays
+      - idContinent
 
   CoronavirusDaily:
     type: "object"
     properties:
       id:
         type: "integer"
+        description: "ID de l'enregistrement (clé primaire auto-générée)"
       date:
         type: "string"
         format: "date"
-      country:
+        description: "Date de l'enregistrement"
+      cumulCasTotaux:
+        type: "integer"
+        description: "Nombre cumulé total de cas"
+      nouveauCasJournalier:
+        type: "integer"
+        description: "Nouveaux cas journaliers"
+      casActif:
+        type: "integer"
+        description: "Cas actifs"
+      cumulMortTotaux:
+        type: "integer"
+        description: "Nombre cumulé total de décès"
+      nouvelleMortJournaliere:
+        type: "integer"
+        description: "Nouvelles morts journalières"
+      id_pays:
+        type: "integer"
+        description: "ID du pays associé"
+      idContinent:
+        type: "integer"
+        description: "ID du continent associé"
+      pays:
         type: "string"
-      cumulative_total_cases:
+        description: "Nom du pays (jointure, lecture seule)"
+      continent:
+        type: "string"
+        description: "Nom du continent (jointure, lecture seule)"
+    required:
+      - date
+      - cumulCasTotaux
+      - nouveauCasJournalier
+      - id_pays
+      - idContinent
+
+  CoronavirusDailyInput: # Schéma pour les requêtes POST/PUT
+    type: "object"
+    properties:
+      date:
+        type: "string"
+        format: "date"
+      cumulCasTotaux:
         type: "integer"
-      daily_new_cases:
+      nouveauCasJournalier:
         type: "integer"
-      active_cases:
+      casActif:
         type: "integer"
-      cumulative_total_deaths:
+      cumulMortTotaux:
         type: "integer"
-      daily_new_deaths:
+      nouvelleMortJournaliere:
         type: "integer"
+      id_pays:
+        type: "integer"
+      idContinent:
+        type: "integer"
+    required:
+      - date
+      - cumulCasTotaux
+      - nouveauCasJournalier
+      - id_pays
+      - idContinent

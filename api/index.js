@@ -52,120 +52,400 @@ app.get('/', (req, res) => {
 });
 
 // CRUD pour covid_country
+// app.get('/covid_country', (req, res) => {
+//     connection.query('SELECT * FROM covid_country', (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json(results);
+//     });
+// });
+
+// app.get('/covid_country/:id', (req, res) => {
+//     connection.query('SELECT * FROM covid_country WHERE id=?', [req.params.id], (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json(results[0] || {});
+//     });
+// });
+
+// app.post('/covid_country', (req, res) => {
+//     const { country_region, confirmed } = req.body;
+//     if (!country_region || !confirmed) {
+//         return res.status(400).json({ error: "Certains champs obligatoires sont manquants." });
+//     }
+
+//     connection.query(
+//       'INSERT INTO covid_country SET ?', req.body,
+//       (err, results) => {
+//         if (err) return res.status(500).json({ error: err.message });
+//         res.status(201).json({ id: results.insertId, ...req.body });
+//       }
+//     );
+// });
+
+// app.put('/covid_country/:id', (req, res) => {
+//     connection.query('UPDATE covid_country SET ? WHERE id=?', [req.body, req.params.id], (err) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json({ message: 'Donnée mise à jour avec succès' });
+//     });
+// });
+
+// app.delete('/covid_country/:id', (req, res) => {
+//     connection.query('DELETE FROM covid_country WHERE id=?', [req.params.id], (err) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json({ message: 'Donnée supprimée avec succès' });
+//     });
+// });
+
+// // CRUD complet pour monkeypox_data
+// app.get('/monkeypox_data', (req, res) => {
+//     connection.query('SELECT * FROM monkeypox_data', (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json(results);
+//     });
+// });
+
+// app.get('/monkeypox_data/:id', (req, res) => {
+//     connection.query('SELECT * FROM monkeypox_data WHERE id=?', [req.params.id], (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json(results[0] || {});
+//     });
+// });
+
+// app.post('/monkeypox_data', (req, res) => {
+//     connection.query('INSERT INTO monkeypox_data SET ?', req.body, (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.status(201).json({ id: results.insertId, ...req.body });
+//     });
+// });
+
+// app.put('/monkeypox_data/:id', (req, res) => {
+//     connection.query('UPDATE monkeypox_data SET ? WHERE id=?', [req.body, req.params.id], (err) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json({ message: 'Donnée mise à jour avec succès' });
+//     });
+// });
+
+// app.delete('/monkeypox_data/:id', (req, res) => {
+//     connection.query('DELETE FROM monkeypox_data WHERE id=?', [req.params.id], (err) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json({ message: 'Donnée supprimée avec succès' });
+//     });
+// });
+
+// // CRUD complet pour coronavirus_daily
+// app.get('/coronavirus_daily', (req, res) => {
+//     connection.query('SELECT * FROM coronavirus_daily', (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json(results);
+//     });
+// });
+
+// app.get('/coronavirus_daily/:id', (req, res) => {
+//     connection.query('SELECT * FROM coronavirus_daily WHERE id=?', [req.params.id], (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json(results[0] || {});
+//     });
+// });
+
+// app.post('/coronavirus_daily', (req, res) => {
+//     connection.query('INSERT INTO coronavirus_daily SET ?', req.body, (err, results) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.status(201).json({ id: results.insertId, ...req.body });
+//     });
+// });
+
+// app.put('/coronavirus_daily/:id', (req, res) => {
+//     connection.query('UPDATE coronavirus_daily SET ? WHERE id=?', [req.body, req.params.id], (err) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json({ message: 'Donnée mise à jour avec succès' });
+//     });
+// });
+
+// app.delete('/coronavirus_daily/:id', (req, res) => {
+//     connection.query('DELETE FROM coronavirus_daily WHERE id=?', [req.params.id], (err) => {
+//       if (err) return res.status(500).json({ error: err.message });
+//       res.json({ message: 'Donnée supprimée avec succès' });
+//     });
+// });
+
+
+
+
+//CRUD pour continent
+
+app.get('/continents', (req, res) => {
+    connection.query('SELECT * FROM continent', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+app.get('/continents/:idContinent', (req, res) => {
+    connection.query('SELECT * FROM continent WHERE idContinent=?', [req.params.idContinent], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0] || {});
+    });
+});
+
+app.post('/continents', (req, res) => {
+    const { idContinent, continent } = req.body;
+    if (!idContinent || !continent) {
+        return res.status(400).json({ error: "Les champs 'idContinent' et 'continent' sont obligatoires." });
+    }
+    connection.query('INSERT INTO continent SET ?', req.body, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ idContinent: req.body.idContinent, ...req.body });
+    });
+});
+
+app.put('/continents/:idContinent', (req, res) => {
+    connection.query('UPDATE continent SET ? WHERE idContinent=?', [req.body, req.params.idContinent], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Continent mis à jour avec succès' });
+    });
+});
+
+app.delete('/continents/:idContinent', (req, res) => {
+    connection.query('DELETE FROM continent WHERE idContinent=?', [req.params.idContinent], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Continent supprimé avec succès' });
+    });
+});
+
+// CRUD pour pays
+
+app.get('/pays', (req, res) => {
+    connection.query('SELECT p.*, c.continent FROM pays p JOIN continent c ON p.idContinent = c.idContinent', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+app.get('/pays/:id_pays', (req, res) => {
+    connection.query('SELECT p.*, c.continent FROM pays p JOIN continent c ON p.idContinent = c.idContinent WHERE p.id_pays=?', [req.params.id_pays], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0] || {});
+    });
+});
+
+app.post('/pays', (req, res) => {
+    const { id_pays, pays, idContinent } = req.body;
+    if (!id_pays || !pays || !idContinent) {
+        return res.status(400).json({ error: "Les champs 'id_pays', 'pays' et 'idContinent' sont obligatoires." });
+    }
+    connection.query('INSERT INTO pays SET ?', req.body, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ id_pays: req.body.id_pays, ...req.body });
+    });
+});
+
+app.put('/pays/:id_pays', (req, res) => {
+    connection.query('UPDATE pays SET ? WHERE id_pays=?', [req.body, req.params.id_pays], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Pays mis à jour avec succès' });
+    });
+});
+
+app.delete('/pays/:id_pays', (req, res) => {
+    connection.query('DELETE FROM pays WHERE id_pays=?', [req.params.id_pays], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Pays supprimé avec succès' });
+    });
+});
+
+// CRUD pour covid_country (avec jointures)
+
 app.get('/covid_country', (req, res) => {
-    connection.query('SELECT * FROM covid_country', (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(results);
+    const query = `
+        SELECT cc.*, p.pays, c.continent
+        FROM covid_country cc
+        JOIN pays p ON cc.id_pays = p.id_pays
+        JOIN continent c ON cc.idContinent = c.idContinent
+    `;
+    connection.query(query, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
     });
 });
 
 app.get('/covid_country/:id', (req, res) => {
-    connection.query('SELECT * FROM covid_country WHERE id=?', [req.params.id], (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(results[0] || {});
+    const query = `
+        SELECT cc.*, p.pays, c.continent
+        FROM covid_country cc
+        JOIN pays p ON cc.id_pays = p.id_pays
+        JOIN continent c ON cc.idContinent = c.idContinent
+        WHERE cc.id=?
+    `;
+    connection.query(query, [req.params.id], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0] || {});
     });
 });
 
-app.post('/covid_country', (req, res) => {
-    const { country_region, confirmed } = req.body;
-    if (!country_region || !confirmed) {
-        return res.status(400).json({ error: "Certains champs obligatoires sont manquants." });
+app.post('/covid_country', (req, res) => {  
+    const { nbCas, nbMort, nbSoigne, id_pays, idContinent } = req.body;
+    if (!nbCas || !nbMort || !nbSoigne || !id_pays || !idContinent) {
+        return res.status(400).json({ error: "Certains champs obligatoires sont manquants (nbCas, nbMort, nbSoigne, id_pays, idContinent)." });
     }
 
-    connection.query(
-      'INSERT INTO covid_country SET ?', req.body,
-      (err, results) => {
+    connection.query('INSERT INTO covid_country SET ?', req.body, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.status(201).json({ id: results.insertId, ...req.body });
-      }
-    );
+    });
 });
 
 app.put('/covid_country/:id', (req, res) => {
     connection.query('UPDATE covid_country SET ? WHERE id=?', [req.body, req.params.id], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: 'Donnée mise à jour avec succès' });
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Donnée COVID par pays mise à jour avec succès' });
     });
 });
 
 app.delete('/covid_country/:id', (req, res) => {
     connection.query('DELETE FROM covid_country WHERE id=?', [req.params.id], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: 'Donnée supprimée avec succès' });
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Donnée COVID par pays supprimée avec succès' });
     });
 });
 
-// CRUD complet pour monkeypox_data
+// CRUD pour monkeypox_data (avec jointures)
+
+
 app.get('/monkeypox_data', (req, res) => {
-    connection.query('SELECT * FROM monkeypox_data', (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(results);
+    // Récupère les paramètres 'limit' et 'offset' de l'URL
+    // parseInt convertit la chaîne en nombre entier.
+    // || 100 et || 0 fournissent des valeurs par défaut si les paramètres sont absents ou invalides.
+    const limit = parseInt(req.query.limit) || 100; // Nombre d'éléments par page, par défaut 100
+    const offset = parseInt(req.query.offset) || 0; // Point de départ (nombre d'éléments à sauter), par défaut 0
+
+    // Validation basique des paramètres (facultatif mais bonne pratique)
+    if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
+        return res.status(400).json({ error: "Les paramètres 'limit' et 'offset' doivent être des nombres positifs." });
+    }
+
+    const query = `
+        SELECT md.*, p.pays, c.continent
+        FROM monkeypox_data md
+        JOIN pays p ON md.id_pays = p.id_pays
+        JOIN continent c ON md.idContinent = c.idContinent
+        LIMIT ? OFFSET ?;
+    `;
+    connection.query(query, [limit, offset], (err, results) => {
+        if (err) {
+            console.error("Erreur lors de la récupération des données monkeypox_data :", err.message);
+            return res.status(500).json({ error: "Erreur serveur lors de la récupération des données Monkeypox." });
+        }
+        res.json(results);
     });
 });
 
 app.get('/monkeypox_data/:id', (req, res) => {
-    connection.query('SELECT * FROM monkeypox_data WHERE id=?', [req.params.id], (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(results[0] || {});
+    const query = `
+        SELECT md.*, p.pays, c.continent
+        FROM monkeypox_data md
+        JOIN pays p ON md.id_pays = p.id_pays
+        JOIN continent c ON md.idContinent = c.idContinent
+        WHERE md.id=?
+    `;
+    connection.query(query, [req.params.id], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0] || {});
     });
 });
 
 app.post('/monkeypox_data', (req, res) => {
+    const { date, nbCasTotaux, nbMortTotaux, id_pays, idContinent } = req.body;
+    if (!date || !nbCasTotaux || !nbMortTotaux || !id_pays || !idContinent) {
+        return res.status(400).json({ error: "Certains champs obligatoires sont manquants (date, nbCasTotaux, nbMortTotaux, id_pays, idContinent)." });
+    }
     connection.query('INSERT INTO monkeypox_data SET ?', req.body, (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ id: results.insertId, ...req.body });
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ id: results.insertId, ...req.body });
     });
 });
 
 app.put('/monkeypox_data/:id', (req, res) => {
     connection.query('UPDATE monkeypox_data SET ? WHERE id=?', [req.body, req.params.id], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: 'Donnée mise à jour avec succès' });
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Donnée Monkeypox mise à jour avec succès' });
     });
 });
 
 app.delete('/monkeypox_data/:id', (req, res) => {
     connection.query('DELETE FROM monkeypox_data WHERE id=?', [req.params.id], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: 'Donnée supprimée avec succès' });
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Donnée Monkeypox supprimée avec succès' });
     });
 });
 
-// CRUD complet pour coronavirus_daily
+// CRUD pour coronavirus_daily (avec jointures)
+
 app.get('/coronavirus_daily', (req, res) => {
-    connection.query('SELECT * FROM coronavirus_daily', (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(results);
+    // Récupère les paramètres 'limit' et 'offset'
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+
+    // Validation basique des paramètres
+    if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
+        return res.status(400).json({ error: "Les paramètres 'limit' et 'offset' doivent être des nombres positifs." });
+    }
+
+    const query = `
+        SELECT cd.*, p.pays, c.continent
+        FROM coronavirus_daily cd
+        JOIN pays p ON cd.id_pays = p.id_pays
+        JOIN continent c ON cd.idContinent = c.idContinent
+        LIMIT ? OFFSET ?;
+    `;
+    connection.query(query, [limit, offset], (err, results) => {
+        if (err) {
+            console.error("Erreur lors de la récupération des données coronavirus_daily :", err.message);
+            return res.status(500).json({ error: "Erreur serveur lors de la récupération des données Coronavirus journalières." });
+        }
+        res.json(results);
     });
 });
 
 app.get('/coronavirus_daily/:id', (req, res) => {
-    connection.query('SELECT * FROM coronavirus_daily WHERE id=?', [req.params.id], (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(results[0] || {});
+    const query = `
+        SELECT cd.*, p.pays, c.continent
+        FROM coronavirus_daily cd
+        JOIN pays p ON cd.id_pays = p.id_pays
+        JOIN continent c ON cd.idContinent = c.idContinent
+        WHERE cd.id=?
+    `;
+    connection.query(query, [req.params.id], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0] || {});
     });
 });
 
 app.post('/coronavirus_daily', (req, res) => {
+    const { date, cumulCasTotaux, nouveauCasJournalier, id_pays, idContinent } = req.body;
+    if (!date || !cumulCasTotaux || !nouveauCasJournalier || !id_pays || !idContinent) {
+        return res.status(400).json({ error: "Certains champs obligatoires sont manquants (date, cumulCasTotaux, nouveauCasJournalier, id_pays, idContinent)." });
+    }
     connection.query('INSERT INTO coronavirus_daily SET ?', req.body, (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ id: results.insertId, ...req.body });
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(201).json({ id: results.insertId, ...req.body });
     });
 });
 
 app.put('/coronavirus_daily/:id', (req, res) => {
     connection.query('UPDATE coronavirus_daily SET ? WHERE id=?', [req.body, req.params.id], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: 'Donnée mise à jour avec succès' });
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Donnée Coronavirus journalière mise à jour avec succès' });
     });
 });
 
 app.delete('/coronavirus_daily/:id', (req, res) => {
     connection.query('DELETE FROM coronavirus_daily WHERE id=?', [req.params.id], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: 'Donnée supprimée avec succès' });
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Donnée Coronavirus journalière supprimée avec succès' });
     });
 });
+
+
+
 
 app.listen(port, () => {
   console.log(`🚀 API démarrée sur http://localhost:${port}`);
