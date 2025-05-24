@@ -1,8 +1,14 @@
-    # Dépendances Node.js
-    node_modules/   
+# Dépendances Node.js
+**/node_modules/
 
-    # Logs et fichiers temporaires
-    *.log
-    *.tmp
+front/style.css
 
-    ETL/*.csv
+ETL/
+
+# Logs et fichiers temporaires
+*.log
+*.tmp
+
+ETL/**.csv
+
+package-lock.json
