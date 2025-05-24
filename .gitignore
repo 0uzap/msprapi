@@ -1,14 +1,14 @@
 # Dépendances Node.js
-**/node_modules/
+api/node_modules
 
-front/style.css
-
-ETL/
+ETL/continent.csv
+ETL/country_wise_latest_modified_final.csv
+ETL/owid-monkeypox-data-final.csv
+ETL/pays.csv
+ETL/worldometer_coronavirus_daily_data_final.csv
 
 # Logs et fichiers temporaires
 *.log
 *.tmp
-
-ETL/**.csv
 
 package-lock.json
