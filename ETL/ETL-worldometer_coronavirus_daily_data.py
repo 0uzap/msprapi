@@ -27,6 +27,8 @@ data1.fillna({'cumul_cas_totaux': 0,
 # On verifie si il y a bien toutes les données
 assert data1.isnull().sum().sum() == 0, "Il y a des valeurs manquantes!"
 
+print("Fichier correctement triée et envoyé dans le fichier worldometer_coronavirus_daily_data_final.csv")
+
 # Fichier de sortie
-data1.to_csv(r'./worldometer_coronavirus_daily_data.csv', index=False)
+data1.to_csv(r'./worldometer_coronavirus_daily_data_final.csv', index=False)
 

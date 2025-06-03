@@ -38,5 +38,8 @@ data1.fillna({'nb_cas_totaux': 0,
 # On verifie si il y a bien toutes les données
 assert data1.isnull().sum().sum() == 0, "Il y a des valeurs manquantes!"
 
+print("Fichier correctement triée et envoyé dans le fichier owid-monkeypox-data-final.csv")
+
+
 # Fichier de sortie
 data1.to_csv(r'.\owid-monkeypox-data-final.csv', index=False)

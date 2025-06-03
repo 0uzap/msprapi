@@ -56,5 +56,7 @@ data1['continent'] = data1['continent'].map(region_to_continent)
 # On verifie si il y a bien toutes les données
 assert data1.isnull().sum().sum() == 0, "Il y a des valeurs manquantes!"
 
+print("Fichier correctement triée et envoyé dans le fichier country_wise_latest_final.csv")
+
 # Fichier de sortie
-data1.to_csv(r'.\country_wise_latest_modified_final.csv', index=False)
+data1.to_csv(r'.\country_wise_latest_final.csv', index=False)
