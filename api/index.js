@@ -311,25 +311,13 @@ app.delete('/covid_country/:id', (req, res) => {
 
 
 app.get('/monkeypox_data', (req, res) => {
-    // Récupère les paramètres 'limit' et 'offset' de l'URL
-    // parseInt convertit la chaîne en nombre entier.
-    // || 100 et || 0 fournissent des valeurs par défaut si les paramètres sont absents ou invalides.
-    const limit = parseInt(req.query.limit) || 100; // Nombre d'éléments par page, par défaut 100
-    const offset = parseInt(req.query.offset) || 0; // Point de départ (nombre d'éléments à sauter), par défaut 0
-
-    // Validation basique des paramètres (facultatif mais bonne pratique)
-    if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
-        return res.status(400).json({ error: "Les paramètres 'limit' et 'offset' doivent être des nombres positifs." });
-    }
-
     const query = `
         SELECT md.*, p.pays, c.continent
         FROM monkeypox_data md
         JOIN pays p ON md.id_pays = p.id_pays
         JOIN continent c ON md.idContinent = c.idContinent
-        LIMIT ? OFFSET ?;
     `;
-    connection.query(query, [limit, offset], (err, results) => {
+    connection.query(query, (err, results) => {
         if (err) {
             console.error("Erreur lors de la récupération des données monkeypox_data :", err.message);
             return res.status(500).json({ error: "Erreur serveur lors de la récupération des données Monkeypox." });
@@ -380,23 +368,13 @@ app.delete('/monkeypox_data/:id', (req, res) => {
 // CRUD pour coronavirus_daily (avec jointures)
 
 app.get('/coronavirus_daily', (req, res) => {
-    // Récupère les paramètres 'limit' et 'offset'
-    const limit = parseInt(req.query.limit) || 100;
-    const offset = parseInt(req.query.offset) || 0;
-
-    // Validation basique des paramètres
-    if (limit <= 0 || offset < 0 || isNaN(limit) || isNaN(offset)) {
-        return res.status(400).json({ error: "Les paramètres 'limit' et 'offset' doivent être des nombres positifs." });
-    }
-
     const query = `
         SELECT cd.*, p.pays, c.continent
         FROM coronavirus_daily cd
         JOIN pays p ON cd.id_pays = p.id_pays
         JOIN continent c ON cd.idContinent = c.idContinent
-        LIMIT ? OFFSET ?;
     `;
-    connection.query(query, [limit, offset], (err, results) => {
+    connection.query(query, (err, results) => {
         if (err) {
             console.error("Erreur lors de la récupération des données coronavirus_daily :", err.message);
             return res.status(500).json({ error: "Erreur serveur lors de la récupération des données Coronavirus journalières." });
