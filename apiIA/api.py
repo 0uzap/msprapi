@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from sklearn.ensemble import RandomForestRegressor
 import bcrypt
+import mysql.connector
+
 
 app = FastAPI(title="IA Prediction API")
 
@@ -18,22 +20,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Connexion à la BDD
+db = mysql.connector.connect(
+    host="db",
+    user="root",
+    password="rootpassword",
+    database="bdd_mspr_api"
+)
+
+# Encode une date en un nombre de jour apres le 01/01/2020
 def encode_date(date_str: str) -> int:
     base = datetime(2020, 1, 1)
     date = datetime.strptime(date_str, "%Y-%m-%d")
     return (date - base).days
 
 
+# Donnee pour la sécurite du JWT
 SECRET_KEY = "ma_super_cle_secrete_123"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# fonction de creation du token
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+# fonction de verification du token
 def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -41,15 +55,21 @@ def verify_token(token: str):
     except JWTError:
         raise HTTPException(status_code=401, detail="Token invalide ou expiré.")
 
+# fonction de verification du user en BDD
 def isInBDD(token: str) -> bool:
     try:
         payload = verify_token(token)
         username = payload.get("sub")
-        if username is None or username not in FAKE_USERS_DB:
+        if username is None:
             return False
-        return True
-    except JWTError:
+
+        cursor = db.cursor()
+        cursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        return result[0] > 0
+    except Exception:
         return False
+
 
 # Exemple de données d'entraînement
 # colonnes: cumulCasTotaux, nouveauCasJournalier, casActif,
@@ -944,29 +964,26 @@ class LoginRequest(BaseModel):
     password: str
 
 
-hashed_password_admin = bcrypt.hashpw("password123".encode(), bcrypt.gensalt())
-hashed_password_user = bcrypt.hashpw("secret".encode(), bcrypt.gensalt())
-
-FAKE_USERS_DB = {
-    "admin": hashed_password_admin,
-    "user": hashed_password_user
-}
-
 @app.post("/login")
 def login(credentials: LoginRequest):
     username = credentials.username
     password = credentials.password
 
-    if username not in FAKE_USERS_DB:
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT mot_de_passe FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+
+    if not user:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé.")
 
-    hashed = FAKE_USERS_DB[username]
+    stored_hash = user["mot_de_passe"].encode()
 
-    if not bcrypt.checkpw(password.encode(), hashed):
+    if not bcrypt.checkpw(password.encode(), stored_hash):
         raise HTTPException(status_code=401, detail="Mot de passe incorrect.")
 
     access_token = create_access_token(data={"sub": username})
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 
 
@@ -975,6 +992,7 @@ async def predict(data: PredictionRequest):
     try:
         if not isInBDD(data.token) :
             raise ValueError("L'utilisateur n'est pas dans la BDD.")
+            
         if len(data.features) != 6:
             raise ValueError("La liste features doit contenir exactement 6 valeurs.")
         
@@ -1002,4 +1020,3 @@ async def predict(data: PredictionRequest):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
