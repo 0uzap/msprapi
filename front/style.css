@@ -1,5 +1,15 @@
 :root {
     --mspr-blue: #007BFF;
+
+    /*Palette daltonisme*/
+    --color-dp-blue: #0072B2;
+    --color-dp-orange: #E69F00;
+    --color-dp-yellow: #F0E442;
+    --color-dp-purple: #CC79A7;
+    --color-dp-black: #000000;
+    --color-dp-grey: #999999;
+    --color-dp-cyan: #56B4E9;
+    --color-dp-brown: #A65628;
 }
 
 body {

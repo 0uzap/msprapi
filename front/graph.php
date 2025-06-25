@@ -4,43 +4,60 @@ $url = "http://localhost:3002/coronavirus_daily";
 $response = file_get_contents($url);
 $data = json_decode($response, true);
 
-// Extraire les pays uniques
-$countries = [];
+// Étape 1 : Extraire la liste des pays avec leur première date
+$paysInfos = [];
 foreach ($data as $entry) {
-    $countries[] = $entry['country'];
+    $id = $entry['id_pays'];
+    $nom = $entry['pays'];
+    $date = substr($entry['date'], 0, 10);
+
+    if (!isset($paysInfos[$id])) {
+        $paysInfos[$id] = [
+            'nom' => $nom,
+            'first_date' => $date
+        ];
+    } elseif ($date < $paysInfos[$id]['first_date']) {
+        $paysInfos[$id]['first_date'] = $date;
+    }
 }
-$countries = array_unique($countries);
-sort($countries);
 
-// Pays sélectionné
-$selectedCountry = $_GET['country'] ?? reset($countries);
+// Étape 2 : Construire la liste déroulante
+$countries = [];
+foreach ($paysInfos as $id => $info) {
+    $countries[$id] = $info['nom'];
+}
+asort($countries); // tri alphabétique
 
-// Dates à inclure (1er du mois + 1er/dernière valeur)
-$start = new DateTime('2020-02-15');
+// Étape 3 : Identifier le pays sélectionné
+$selectedIdPays = $_GET['country'] ?? array_key_first($countries);
+$selectedCountryName = $countries[$selectedIdPays] ?? "Inconnu";
+
+// Étape 4 : Générer les dates à partir de la première date réelle
+$start = new DateTime($paysInfos[$selectedIdPays]['first_date']);
 $end = new DateTime('2022-05-14');
-$dates = [$start->format('Y-m-d')];
-$current = new DateTime('2020-03-01');
-while ($current < $end) {
-    $dates[] = $current->format('Y-m-d');
-    $current->modify('first day of next month');
-}
-$dates[] = $end->format('Y-m-d');
 
-// Filtrer les données par pays
+$dates = [];
+while ($start <= $end) {
+    $dates[] = $start->format('Y-m-d');
+    $start->modify('first day of next month');
+}
+
+// Étape 5 : Filtrer les données pour le pays sélectionné et les bonnes dates
 $dataPointsCases = [];
 $dataPointsDeaths = [];
 
 foreach ($data as $entry) {
-    if ($entry['country'] === $selectedCountry) {
+    if ((string)$entry['id_pays'] === (string)$selectedIdPays) {
         $entryDate = substr($entry['date'], 0, 10);
         if (in_array($entryDate, $dates)) {
             $timestamp = strtotime($entryDate) * 1000;
-            $dataPointsCases[] = ["x" => $timestamp, "y" => (int)$entry['active_cases']];
-            $dataPointsDeaths[] = ["x" => $timestamp, "y" => (int)$entry['cumulative_total_deaths']];
+            $dataPointsCases[] = ["x" => $timestamp, "y" => (int)$entry['casActif']];
+            $dataPointsDeaths[] = ["x" => $timestamp, "y" => (int)$entry['cumulMortTotaux']];
         }
     }
 }
 ?>
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -48,26 +65,32 @@ foreach ($data as $entry) {
     <link rel="stylesheet" href="style.css">
     <script>
         window.onload = function () {
-            var chart = new CanvasJS.Chart("chartContainer", {
+            const normalColors = ["#4F81BC", "#C0504E"];
+            const daltonismColors = ["#0072B2", "#E69F00"];
+            let currentColors = [...normalColors];
+
+            const chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
-                title: { text: "Data COVID pour <?php echo htmlspecialchars($selectedCountry); ?>" },
-                subtitles: [{ text: "Cas actif et morts", fontSize: 18 }],
-                axisY: { title: "Cas actif / Morts" },
+                title: { text: "Data COVID pour <?php echo htmlspecialchars($selectedCountryName); ?>" },
+                subtitles: [{ text: "Cas cumulés et morts", fontSize: 18 }],
+                axisY: { title: "Cas cumulés / Morts" },
                 legend: { cursor: "pointer", itemclick: toggleDataSeries },
                 toolTip: { shared: true },
                 data: [
                     {
                         type: "area",
-                        name: "Cas actif",
+                        name: "Cas cumulés",
                         showInLegend: true,
+                        color: currentColors[0],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
                         dataPoints: <?php echo json_encode($dataPointsCases, JSON_NUMERIC_CHECK); ?>
                     },
                     {
                         type: "area",
-                        name: "Total de mort",
+                        name: "Total de morts",
                         showInLegend: true,
+                        color: currentColors[1],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
                         dataPoints: <?php echo json_encode($dataPointsDeaths, JSON_NUMERIC_CHECK); ?>
@@ -77,13 +100,17 @@ foreach ($data as $entry) {
             chart.render();
 
             function toggleDataSeries(e) {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                } else {
-                    e.dataSeries.visible = true;
-                }
+                e.dataSeries.visible = !(typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible);
                 chart.render();
             }
+
+            document.getElementById("colorblindToggle").addEventListener("change", function () {
+                const useDaltonism = this.checked;
+                currentColors = useDaltonism ? daltonismColors : normalColors;
+                chart.options.data[0].color = currentColors[0];
+                chart.options.data[1].color = currentColors[1];
+                chart.render();
+            });
         }
     </script>
 </head>
@@ -93,18 +120,23 @@ foreach ($data as $entry) {
         <h2>MSPR 6.1</h2>
     </header>
 
-    <h1>Evolution cas actif - mort</h1>
+    <h1>Évolution des cas cumulés et morts</h1>
 
     <form method="get">
         <label for="country">Choisir un pays :</label>
         <select name="country" id="country" onchange="this.form.submit()">
-            <?php foreach ($countries as $country): ?>
-                <option value="<?= htmlspecialchars($country) ?>" <?= $selectedCountry === $country ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($country) ?>
+            <?php foreach ($countries as $id => $name): ?>
+                <option value="<?= htmlspecialchars($id) ?>" <?= ($id == $selectedIdPays) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($name) ?>
                 </option>
             <?php endforeach; ?>
         </select>
     </form>
+
+    <!-- Case à cocher mode daltonien -->
+    <label>
+        <input type="checkbox" id="colorblindToggle"> Mode daltonisme
+    </label>
 
     <!-- Graphique -->
     <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 20px;"></div>
@@ -112,9 +144,10 @@ foreach ($data as $entry) {
 
     <div class="button-container">
         <a href="graph2.php"><button>Coronavirus monde</button></a>
-        <a href="index.html"><button>Retour à l'accueil</button></a>
+        <a href="index_co.php"><button>Retour à l'accueil</button></a>
         <a href="graph3.php"><button>Monkeypox</button></a>
     </div>
-    
+
 </body>
 </html>
+

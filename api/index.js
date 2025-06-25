@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+const bcrypt = require('bcrypt');
 
 const swaggerDocument = YAML.load('./api/swagger.yaml');
 console.log('📄 Swagger chargé avec succès');
@@ -422,6 +423,112 @@ app.delete('/coronavirus_daily/:id', (req, res) => {
     });
 });
 
+// Récupérer tous les utilisateurs
+app.get('/users', (req, res) => {
+    connection.query('SELECT * FROM users', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// Récupérer un utilisateur par ID
+app.get('/users/:id', (req, res) => {
+    connection.query('SELECT * FROM users WHERE id = ?', [req.params.id], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results[0] || {});
+    });
+});
+
+// Ajouter un nouvel utilisateur
+app.post('/users', async (req, res) => {
+    const { login, mdp, rôle } = req.body;
+
+    if (!login || !mdp || !rôle) {
+        return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
+    }
+
+    try {
+        // Hachage du mot de passe
+        const hashedPassword = await bcrypt.hash(mdp, 10); // 10 = nombre de "salt rounds"
+
+        const newUser = {
+            login,
+            mdp: hashedPassword,
+            rôle
+        };
+
+        connection.query('INSERT INTO users SET ?', newUser, (err, results) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: results.insertId, login, rôle });
+        });
+
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
+    }
+});
+
+// Mettre à jour un utilisateur existant
+app.put('/users/:id', async (req, res) => {
+    const { login, mdp, rôle } = req.body;
+
+    if (!login || !mdp || !rôle) {
+        return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(mdp, 10);
+
+        const updatedUser = {
+            login,
+            mdp: hashedPassword,
+            rôle
+        };
+
+        connection.query('UPDATE users SET ? WHERE id = ?', [updatedUser, req.params.id], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: 'Utilisateur mis à jour avec succès' });
+        });
+
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
+    }
+});
+
+// Supprimer un utilisateur
+app.delete('/users/:id', (req, res) => {
+    connection.query('DELETE FROM users WHERE id = ?', [req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Utilisateur supprimé avec succès' });
+    });
+});
+
+// Connexion d'un utilisateur
+app.post('/users/login', (req, res) => {
+    const { login, mdp } = req.body;
+
+    if (!login || !mdp) {
+        return res.status(400).json({ error: "Login et mot de passe requis." });
+    }
+
+    connection.query('SELECT * FROM users WHERE login = ?', [login], async (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(401).json({ error: "Identifiants incorrects." });
+
+        const user = results[0];
+        const isMatch = await bcrypt.compare(mdp, user.mdp);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: "Identifiants incorrects." });
+        }
+
+        // Envoi des infos utiles (ne pas envoyer le mot de passe)
+        res.json({
+            id: user.id,
+            login: user.login,
+            rôle: user.rôle
+        });
+    });
+});
 
 
 
