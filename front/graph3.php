@@ -7,8 +7,8 @@ $data = json_decode($response, true);
 // Extraire les pays uniques
 $countries = [];
 foreach ($data as $entry) {
-    if (isset($entry['location'])) {
-        $countries[] = $entry['location'];
+    if (isset($entry['pays'])) {
+        $countries[] = $entry['pays'];
     }
 }
 $countries = array_unique($countries);
@@ -33,12 +33,12 @@ $dataPointsCases = [];
 $dataPointsDeaths = [];
 
 foreach ($data as $entry) {
-    if ($entry['location'] === $selectedCountry) {
+    if ($entry['pays'] === $selectedCountry) {
         $entryDate = substr($entry['date'], 0, 10);
         if (in_array($entryDate, $dates)) {
             $timestamp = strtotime($entryDate) * 1000;
-            $dataPointsCases[] = ["x" => $timestamp, "y" => (int)$entry['total_cases']];
-            $dataPointsDeaths[] = ["x" => $timestamp, "y" => (int)$entry['total_deaths']];
+            $dataPointsCases[] = ["x" => $timestamp, "y" => (int)$entry['nbCasTotaux']];
+            $dataPointsDeaths[] = ["x" => $timestamp, "y" => (int)$entry['nbMortTotaux']];
         }
     }
 }
@@ -50,7 +50,11 @@ foreach ($data as $entry) {
     <link rel="stylesheet" href="style.css">
     <script>
         window.onload = function () {
-            var chart = new CanvasJS.Chart("chartContainer", {
+            const normalColors = ["#4F81BC", "#C0504E"];
+            const daltonismColors = ["#0072B2", "#E69F00"];
+            let currentColors = [...normalColors];
+
+            const chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
                 title: { text: "Données Monkeypox - <?php echo htmlspecialchars($selectedCountry); ?>" },
                 subtitles: [{ text: "Total des cas et décès", fontSize: 18 }],
@@ -62,6 +66,7 @@ foreach ($data as $entry) {
                         type: "area",
                         name: "Cas totaux",
                         showInLegend: true,
+                        color: currentColors[0],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
                         dataPoints: <?php echo json_encode($dataPointsCases, JSON_NUMERIC_CHECK); ?>
@@ -70,6 +75,7 @@ foreach ($data as $entry) {
                         type: "area",
                         name: "Décès totaux",
                         showInLegend: true,
+                        color: currentColors[1],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
                         dataPoints: <?php echo json_encode($dataPointsDeaths, JSON_NUMERIC_CHECK); ?>
@@ -79,13 +85,17 @@ foreach ($data as $entry) {
             chart.render();
 
             function toggleDataSeries(e) {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                } else {
-                    e.dataSeries.visible = true;
-                }
+                e.dataSeries.visible = !(typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible);
                 chart.render();
             }
+
+            document.getElementById("colorblindToggle").addEventListener("change", function () {
+                const useDaltonism = this.checked;
+                currentColors = useDaltonism ? daltonismColors : normalColors;
+                chart.options.data[0].color = currentColors[0];
+                chart.options.data[1].color = currentColors[1];
+                chart.render();
+            });
         }
     </script>
 </head>
@@ -108,13 +118,18 @@ foreach ($data as $entry) {
         </select>
     </form>
 
+    <!-- Case à cocher daltonisme -->
+    <label>
+        <input type="checkbox" id="colorblindToggle"> Mode daltonisme
+    </label>
+
     <!-- Graphique -->
     <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 20px;"></div>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
     <div class="button-container">
         <a href="graph2.php"><button>Coronavirus monde</button></a>
-        <a href="index.html"><button>Retour à l'accueil</button></a>
+        <a href="index_co.php"><button>Retour à l'accueil</button></a>
         <a href="graph.php"><button>Coronavirus journalier</button></a>
     </div>
 

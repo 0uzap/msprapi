@@ -8,7 +8,7 @@ $data = [];
 if ($response !== false) {
     $data = json_decode($response);
     foreach ($data as $item) {
-        $countries[] = $item->country_region;
+        $countries[] = $item->pays;
     }
 } else {
     echo "Erreur lors de l'appel à l'API.";
@@ -22,10 +22,10 @@ $countryData1 = null;
 $countryData2 = null;
 
 foreach ($data as $item) {
-    if ($item->country_region === $selectedCountry1) {
+    if ($item->pays === $selectedCountry1) {
         $countryData1 = $item;
     }
-    if ($item->country_region === $selectedCountry2) {
+    if ($item->pays === $selectedCountry2) {
         $countryData2 = $item;
     }
 }
@@ -35,53 +35,7 @@ foreach ($data as $item) {
 <head>
     <title>MSPR 6.1</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-    window.onload = function () {
-        var chart = new CanvasJS.Chart("chartContainer", {
-            animationEnabled: true,
-            theme: "light2",
-            title:{
-                text: "Comparaison COVID-19 : <?php echo $selectedCountry1 . ' vs ' . $selectedCountry2; ?>"
-            },
-            axisY: {
-                title: "Nombre de cas"
-            },
-            toolTip: {
-                shared: true
-            },
-            legend: {
-                cursor: "pointer",
-                itemclick: function (e) {
-                    e.dataSeries.visible = !(typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible);
-                    chart.render();
-                }
-            },
-            data: [
-                {
-                    type: "column",
-                    name: "<?php echo $selectedCountry1; ?>",
-                    showInLegend: true,
-                    dataPoints: [
-                        { label: "Morts", y: <?php echo $countryData1->deaths ?? 0; ?> },
-                        { label: "Soignés", y: <?php echo $countryData1->recovered ?? 0; ?> },
-                        { label: "Actifs", y: <?php echo $countryData1->active ?? 0; ?> }
-                    ]
-                },
-                {
-                    type: "column",
-                    name: "<?php echo $selectedCountry2; ?>",
-                    showInLegend: true,
-                    dataPoints: [
-                        { label: "Morts", y: <?php echo $countryData2->deaths ?? 0; ?> },
-                        { label: "Soignés", y: <?php echo $countryData2->recovered ?? 0; ?> },
-                        { label: "Actifs", y: <?php echo $countryData2->active ?? 0; ?> }
-                    ]
-                }
-            ]
-        });
-        chart.render();
-    }
-    </script>
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 </head>
 <body>
     <header>
@@ -114,19 +68,87 @@ foreach ($data as $item) {
 
     <!-- Cas confirmés -->
     <?php if ($countryData1 && $countryData2): ?>
-        <p><strong>Cas confirmés <?php echo $selectedCountry1; ?> :</strong> <?php echo $countryData1->confirmed; ?></p>
-        <p><strong>Cas confirmés <?php echo $selectedCountry2; ?> :</strong> <?php echo $countryData2->confirmed; ?></p>
+        <p><strong>Cas confirmés <?= $selectedCountry1 ?> :</strong> <?= $countryData1->nbCas ?></p>
+        <p><strong>Cas confirmés <?= $selectedCountry2 ?> :</strong> <?= $countryData2->nbCas ?></p>
     <?php endif; ?>
+
+    <!-- Case à cocher Mode Daltonisme -->
+    <label>
+        <input type="checkbox" id="colorblindToggle"> Mode daltonisme
+    </label>
 
     <!-- Graphique -->
     <div id="chartContainer" style="height: 400px; width: 100%;"></div>
-    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
+    <!-- Script graphique + Daltonisme -->
+    <script>
+    window.onload = function () {
+        const normalColors = ["#6D78AD", "#51CDA0"];
+        const daltonismColors = ["#0072B2", "#E69F00"];
+
+        const chartOptions = {
+            animationEnabled: true,
+            theme: "light2",
+            title: {
+                text: "Comparaison COVID-19 : <?php echo $selectedCountry1 . ' vs ' . $selectedCountry2; ?>"
+            },
+            axisY: {
+                title: "Nombre de cas"
+            },
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                cursor: "pointer",
+                itemclick: function (e) {
+                    e.dataSeries.visible = !(typeof e.dataSeries.visible === "undefined" || e.dataSeries.visible);
+                    chart.render();
+                }
+            },
+            data: [
+                {
+                    type: "column",
+                    name: "<?php echo $selectedCountry1; ?>",
+                    showInLegend: true,
+                    color: normalColors[0],
+                    dataPoints: [
+                        { label: "Morts", y: <?php echo $countryData1->nbMort ?? 0; ?> },
+                        { label: "Soignés", y: <?php echo $countryData1->nbSoigne ?? 0; ?> },
+                        { label: "Actifs", y: <?php echo $countryData1->nbActif ?? 0; ?> }
+                    ]
+                },
+                {
+                    type: "column",
+                    name: "<?php echo $selectedCountry2; ?>",
+                    showInLegend: true,
+                    color: normalColors[1],
+                    dataPoints: [
+                        { label: "Morts", y: <?php echo $countryData2->nbMort ?? 0; ?> },
+                        { label: "Soignés", y: <?php echo $countryData2->nbSoigne ?? 0; ?> },
+                        { label: "Actifs", y: <?php echo $countryData2->nbActif ?? 0; ?> }
+                    ]
+                }
+            ]
+        };
+
+        const chart = new CanvasJS.Chart("chartContainer", chartOptions);
+        chart.render();
+
+        // Changement de couleurs en mode daltonisme
+        document.getElementById("colorblindToggle").addEventListener("change", function () {
+            const useDaltonism = this.checked;
+            chart.options.data[0].color = useDaltonism ? daltonismColors[0] : normalColors[0];
+            chart.options.data[1].color = useDaltonism ? daltonismColors[1] : normalColors[1];
+            chart.render();
+        });
+    }
+    </script>
+
+    <!-- Liens de navigation -->
     <div class="button-container">
         <a href="graph.php"><button>Coronavirus journalier</button></a>
-        <a href="index.html"><button>Retour à l'accueil</button></a>
+        <a href="index_co.php"><button>Retour à l'accueil</button></a>
         <a href="graph3.php"><button>Monkeypox</button></a>
     </div>
-
 </body>
 </html>
