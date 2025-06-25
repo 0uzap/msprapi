@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
 from sklearn.ensemble import RandomForestRegressor
+import bcrypt
 
 app = FastAPI(title="IA Prediction API")
 
@@ -20,6 +22,34 @@ def encode_date(date_str: str) -> int:
     base = datetime(2020, 1, 1)
     date = datetime.strptime(date_str, "%Y-%m-%d")
     return (date - base).days
+
+
+SECRET_KEY = "ma_super_cle_secrete_123"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token invalide ou expiré.")
+
+def isInBDD(token: str) -> bool:
+    try:
+        payload = verify_token(token)
+        username = payload.get("sub")
+        if username is None or username not in FAKE_USERS_DB:
+            return False
+        return True
+    except JWTError:
+        return False
 
 # Exemple de données d'entraînement
 # colonnes: cumulCasTotaux, nouveauCasJournalier, casActif,
@@ -901,17 +931,59 @@ model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
 class PredictionRequest(BaseModel):
-    features: List[List[float]]
+    features: List[float]
+    date: str
+    token: str
+
 
 class PredictionResponse(BaseModel):
     predictions: List[List[float]]
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+hashed_password_admin = bcrypt.hashpw("password123".encode(), bcrypt.gensalt())
+hashed_password_user = bcrypt.hashpw("secret".encode(), bcrypt.gensalt())
+
+FAKE_USERS_DB = {
+    "admin": hashed_password_admin,
+    "user": hashed_password_user
+}
+
+@app.post("/login")
+def login(credentials: LoginRequest):
+    username = credentials.username
+    password = credentials.password
+
+    if username not in FAKE_USERS_DB:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé.")
+
+    hashed = FAKE_USERS_DB[username]
+
+    if not bcrypt.checkpw(password.encode(), hashed):
+        raise HTTPException(status_code=401, detail="Mot de passe incorrect.")
+
+    access_token = create_access_token(data={"sub": username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(data: PredictionRequest):
     try:
-        input_data = np.array(data.features)
+        if not isInBDD(data.token) :
+            raise ValueError("L'utilisateur n'est pas dans la BDD.")
+        if len(data.features) != 6:
+            raise ValueError("La liste features doit contenir exactement 6 valeurs.")
+        
+        encoded_date = encode_date(data.date)
+        combined_features = data.features + [encoded_date]
+        input_data = np.array([combined_features])
+
         if input_data.shape[1] != 7:
-            raise ValueError("Chaque exemple doit contenir exactement 7 valeurs : 6 features + 1 pour la date encodée.")
+            raise ValueError("Chaque exemple doit contenir 6 features + 1 date encodée.")
 
         prediction = model.predict(input_data)
         
@@ -930,3 +1002,4 @@ async def predict(data: PredictionRequest):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
