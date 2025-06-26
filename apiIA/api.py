@@ -22,7 +22,7 @@ app.add_middleware(
 
 # Connexion à la BDD
 db = mysql.connector.connect(
-    host="db",
+    host="localhost",
     user="root",
     password="rootpassword",
     database="bdd_mspr_api"
@@ -59,16 +59,17 @@ def verify_token(token: str):
 def isInBDD(token: str) -> bool:
     try:
         payload = verify_token(token)
-        username = payload.get("sub")
-        if username is None:
+        login = payload.get("sub")
+        if login is None:
             return False
 
         cursor = db.cursor()
-        cursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
+        cursor.execute("SELECT COUNT(*) FROM users WHERE login = %s", (login,))
         result = cursor.fetchone()
         return result[0] > 0
     except Exception:
         return False
+
 
 
 # Exemple de données d'entraînement
@@ -966,22 +967,22 @@ class LoginRequest(BaseModel):
 
 @app.post("/login")
 def login(credentials: LoginRequest):
-    username = credentials.username
-    password = credentials.password
+    login_input = credentials.username
+    password_input = credentials.password
 
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT mot_de_passe FROM users WHERE username = %s", (username,))
+    cursor.execute("SELECT mdp FROM users WHERE login = %s", (login_input,))
     user = cursor.fetchone()
 
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé.")
 
-    stored_hash = user["mot_de_passe"].encode()
+    stored_hash = user["mdp"].strip()
 
-    if not bcrypt.checkpw(password.encode(), stored_hash):
+    if not bcrypt.checkpw(password_input.encode(), stored_hash.encode()):
         raise HTTPException(status_code=401, detail="Mot de passe incorrect.")
 
-    access_token = create_access_token(data={"sub": username})
+    access_token = create_access_token(data={"sub": login_input})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
