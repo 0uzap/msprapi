@@ -21,28 +21,27 @@ foreach ($data as $entry) {
     }
 }
 
-// Étape 2 : Construire la liste déroulante
+// Étape 2 : Liste déroulante
 $countries = [];
 foreach ($paysInfos as $id => $info) {
     $countries[$id] = $info['nom'];
 }
 asort($countries);
 
-// Étape 3 : Identifier le pays sélectionné
+// Étape 3 : Sélection pays
 $selectedIdPays = $_GET['country'] ?? array_key_first($countries);
 $selectedCountryName = $countries[$selectedIdPays] ?? "Inconnu";
 
-// Étape 4 : Générer les dates mensuelles
+// Étape 4 : Dates mensuelles
 $start = new DateTime($paysInfos[$selectedIdPays]['first_date']);
 $end = new DateTime('2022-05-14');
-
 $dates = [];
 while ($start <= $end) {
     $dates[] = $start->format('Y-m-d');
     $start->modify('first day of next month');
 }
 
-// Étape 5 : Préparer les courbes historiques
+// Étape 5 : Données historiques
 $dataPointsCases = [];
 $dataPointsDeaths = [];
 
@@ -57,23 +56,6 @@ foreach ($data as $entry) {
     }
 }
 
-// Étape 6 : Appel API IA (prédictions cas actifs)
-$predictionUrl = "http://localhost:8000/predict?country_id=" . urlencode($selectedIdPays);
-$predictionResponse = file_get_contents($predictionUrl);
-$predictionData = json_decode($predictionResponse, true);
-$dataPointsPredicted = [];
-
-if (isset($predictionData['predictions'][0])) {
-    $predictedValues = $predictionData['predictions'][0];
-    
-    // Générer les prochaines dates mensuelles à partir de la dernière date réelle
-    $lastRealDate = new DateTime(end($dates));
-    foreach ($predictedValues as $i => $predicted) {
-        $lastRealDate->modify('first day of next month');
-        $timestamp = $lastRealDate->getTimestamp() * 1000;
-        $dataPointsPredicted[] = ["x" => $timestamp, "y" => (int) round($predicted)];
-    }
-}
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -83,14 +65,14 @@ if (isset($predictionData['predictions'][0])) {
     <link rel="stylesheet" href="style.css">
     <script>
         window.onload = function () {
-            const normalColors = ["#4F81BC", "#C0504E", "#9B59B6"];
-            const daltonismColors = ["#0072B2", "#E69F00", "#999999"];
+            const normalColors = ["#4F81BC", "#C0504E"];
+            const daltonismColors = ["#0072B2", "#E69F00"];
             let currentColors = [...normalColors];
 
             const chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
                 title: { text: "Data COVID pour <?php echo htmlspecialchars($selectedCountryName); ?>" },
-                subtitles: [{ text: "Cas actifs, décès et prédictions IA", fontSize: 18 }],
+                subtitles: [{ text: "Cas actifs, morts, cas cumulés et prédictions IA", fontSize: 18 }],
                 axisY: { title: "Nombre de cas" },
                 legend: { cursor: "pointer", itemclick: toggleDataSeries },
                 toolTip: { shared: true },
@@ -112,16 +94,6 @@ if (isset($predictionData['predictions'][0])) {
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
                         dataPoints: <?php echo json_encode($dataPointsDeaths, JSON_NUMERIC_CHECK); ?>
-                    },
-                    {
-                        type: "line",
-                        name: "Prédiction cas actifs",
-                        showInLegend: true,
-                        color: currentColors[2],
-                        xValueType: "dateTime",
-                        xValueFormatString: "MMM YYYY",
-                        lineDashType: "dash",
-                        dataPoints: <?php echo json_encode($dataPointsPredicted, JSON_NUMERIC_CHECK); ?>
                     }
                 ]
             });
@@ -138,7 +110,6 @@ if (isset($predictionData['predictions'][0])) {
                 currentColors = useDaltonism ? daltonismColors : normalColors;
                 chart.options.data[0].color = currentColors[0];
                 chart.options.data[1].color = currentColors[1];
-                chart.options.data[2].color = currentColors[2];
                 chart.render();
             });
         }
@@ -150,7 +121,7 @@ if (isset($predictionData['predictions'][0])) {
     <h2>MSPR 6.1</h2>
 </header>
 
-<h1>Évolution des cas actifs, morts et prédictions IA</h1>
+<h1>Évolution des cas actifs et des morts</h1>
 
 <form method="get">
     <label for="country">Choisir un pays :</label>
@@ -174,8 +145,11 @@ if (isset($predictionData['predictions'][0])) {
 
 <div class="button-container">
     <a href="graph2.php"><button>Coronavirus monde</button></a>
-    <a href="index_co.php"><button>Retour à l'accueil</button></a>
+    <a href="prediGraph.php"><button>Voir les prédictions de l'IA</button></a>
     <a href="graph3.php"><button>Monkeypox</button></a>
+</div>
+<div class="button-container">
+    <a href="index_co.php"><button>Retour à l'accueil</button></a>
 </div>
 
 </body>
