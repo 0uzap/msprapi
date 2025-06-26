@@ -1,13 +1,11 @@
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import numpy as np
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
+from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 import bcrypt
-import mysql.connector
 
 
 app = FastAPI(title="IA Prediction API")
@@ -20,56 +18,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Connexion à la BDD
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="rootpassword",
-    database="bdd_mspr_api"
-)
-
 # Encode une date en un nombre de jour apres le 01/01/2020
 def encode_date(date_str: str) -> int:
     base = datetime(2020, 1, 1)
     date = datetime.strptime(date_str, "%Y-%m-%d")
     return (date - base).days
-
-
-# Donnee pour la sécurite du JWT
-SECRET_KEY = "ma_super_cle_secrete_123"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-# fonction de creation du token
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-# fonction de verification du token
-def verify_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Token invalide ou expiré.")
-
-# fonction de verification du user en BDD
-def isInBDD(token: str) -> bool:
-    try:
-        payload = verify_token(token)
-        login = payload.get("sub")
-        if login is None:
-            return False
-
-        cursor = db.cursor()
-        cursor.execute("SELECT COUNT(*) FROM users WHERE login = %s", (login,))
-        result = cursor.fetchone()
-        return result[0] > 0
-    except Exception:
-        return False
-
 
 
 # Exemple de données d'entraînement
@@ -954,7 +907,6 @@ model.fit(X_train, y_train)
 class PredictionRequest(BaseModel):
     features: List[float]
     date: str
-    token: str
 
 
 class PredictionResponse(BaseModel):
@@ -965,34 +917,9 @@ class LoginRequest(BaseModel):
     password: str
 
 
-@app.post("/login")
-def login(credentials: LoginRequest):
-    login_input = credentials.username
-    password_input = credentials.password
-
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT mdp FROM users WHERE login = %s", (login_input,))
-    user = cursor.fetchone()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="Utilisateur non trouvé.")
-
-    stored_hash = user["mdp"].strip()
-
-    if not bcrypt.checkpw(password_input.encode(), stored_hash.encode()):
-        raise HTTPException(status_code=401, detail="Mot de passe incorrect.")
-
-    access_token = create_access_token(data={"sub": login_input})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-
-
-
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(data: PredictionRequest):
     try:
-        if not isInBDD(data.token) :
-            raise ValueError("L'utilisateur n'est pas dans la BDD.")
             
         if len(data.features) != 6:
             raise ValueError("La liste features doit contenir exactement 6 valeurs.")
