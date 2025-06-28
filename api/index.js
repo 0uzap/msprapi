@@ -61,7 +61,7 @@ const connectWithRetry = () => {
   });
 };
 
-// connectWithRetry();
+connectWithRetry();
 
 
 app.use(express.json());
