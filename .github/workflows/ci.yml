@@ -14,14 +14,14 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8
         env:
           MYSQL_ROOT_PASSWORD: rootpassword
           MYSQL_DATABASE: bdd_mspr_api
         ports:
           - 3310:3306
         options: >-
-          --health-cmd="mysqladmin ping --silent"
+          --health-cmd="mysqladmin ping -uroot -prootpassword"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -39,16 +39,16 @@ jobs:
         working-directory: ./api
         run: npm install
 
-      - name: Wait for MySQL to be healthy
+      - name: Wait for MySQL to be ready
         run: |
-          until mysqladmin ping -h127.0.0.1 -uroot -prootpassword --silent; do
+          until mysqladmin ping -hmysql -uroot -prootpassword --silent; do
             echo "waiting for mysql..."
             sleep 3
           done
 
       - name: Inject database schema
         run: |
-          mysql -h127.0.0.1 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
+          mysql -hmysql -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
 
       - name: Run tests
         working-directory: ./api
