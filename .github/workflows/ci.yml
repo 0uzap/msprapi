@@ -49,5 +49,4 @@ jobs:
         run: npm test
 
       - name: Build docker image
-        working-directory: ./api
         run: docker build -t mspr-api .
