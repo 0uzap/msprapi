@@ -31,7 +31,6 @@ services:
     depends_on:
       db-us:
         condition: service_healthy
-    command: ["node", "server.js"]
     networks:
       - us_network
 

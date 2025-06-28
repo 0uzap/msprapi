@@ -31,7 +31,6 @@ services:
     depends_on:
       db-ch:
         condition: service_healthy
-    command: ["node", "server.js"]
     networks:
       - ch_network
 

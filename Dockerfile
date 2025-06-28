@@ -23,5 +23,5 @@ COPY api/swagger.yaml ./api/swagger.yaml
 EXPOSE 3001
 
 # Lance application avec node
-CMD ["node", "index.js"]
+CMD ["node", "server.js"]
 
