@@ -25,8 +25,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-        volumes:
-          - ./api/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
     steps:
       - name: Checkout code
@@ -41,14 +39,16 @@ jobs:
         working-directory: ./api
         run: npm install
 
-      - name: Wait for MySQL
+      - name: Wait for MySQL to be healthy
         run: |
-          sudo apt-get install -y mysql-client
-          until mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -e "SELECT 1"; do
-            echo "⏳ Attente de MySQL..."
-            sleep 5
+          until mysqladmin ping -h127.0.0.1 -uroot -prootpassword --silent; do
+            echo "waiting for mysql..."
+            sleep 3
           done
-          echo "✅ MySQL est prêt"
+
+      - name: Inject database schema
+        run: |
+          mysql -h127.0.0.1 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
 
       - name: Run tests
         working-directory: ./api
@@ -56,4 +56,4 @@ jobs:
 
       - name: Build docker image
         working-directory: ./api
-        run: docker build -t mspr-api .
+        run: docker build -t mspr-api 
