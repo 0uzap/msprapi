@@ -39,16 +39,10 @@ jobs:
         working-directory: ./api
         run: npm install
 
-      - name: Wait for MySQL to be ready
-        run: |
-          until mysqladmin ping -hmysql -uroot -prootpassword --silent; do
-            echo "waiting for mysql..."
-            sleep 3
-          done
-
       - name: Inject database schema
         run: |
-          mysql -hmysql -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
+          sleep 20
+          mysql -h127.0.0.1 -P3310 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
 
       - name: Run tests
         working-directory: ./api
@@ -56,4 +50,4 @@ jobs:
 
       - name: Build docker image
         working-directory: ./api
-        run: docker build -t mspr-api 
+        run: docker build -t mspr-api .
