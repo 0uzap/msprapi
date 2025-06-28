@@ -2,8 +2,17 @@ const mysql = require('mysql2');
 const fs = require('fs');
 const csv = require('csv-parser');
 
+const pays = process.env.PAYS_CIBLE || 'FR';
+
+let dbHost = 'db'; // par défaut
+if (pays === 'FR') dbHost = 'db-fr';
+if (pays === 'US') dbHost = 'db-us';
+if (pays === 'CH') dbHost = 'db-ch';
+
 const connection = mysql.createConnection({
-  host: 'db', 
+  host: dbHost,
+// const connection = mysql.createConnection({
+//   host: 'db', 
   user: 'root',
   password: 'rootpassword',
   database: 'bdd_mspr_api'

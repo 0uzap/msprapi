@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db-fr:
+    image: mysql:8.0
+    container_name: db-fr
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: bdd_mspr_api
+    volumes:
+      - db_data_fr:/var/lib/mysql
+    ports:
+      - "3310:3306"  # Port alternatif pour MySQL
+    networks:
+      - fr_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  api-fr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-fr
+    environment:
+      - PAYS_CIBLE=FR
+    ports:
+      - "3010:3001"  # Port alternatif pour API
+    depends_on:
+      db-fr:
+        condition: service_healthy
+    command: ["node", "server.js"]
+    networks:
+      - fr_network
+
+  phpmyadmin-fr:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-fr
+    environment:
+      PMA_HOST: db-fr
+      PMA_PORT: 3306
+    ports:
+      - "8090:80"  # Port alternatif pour PhpMyAdmin
+    networks:
+      - fr_network
+
+volumes:
+  db_data_fr:
+
+networks:
+  fr_network:
+    driver: bridge

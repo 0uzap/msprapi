@@ -1,49 +1,54 @@
 version: '3.8'
 
 services:
-  db:
+  db-us:
     image: mysql:8.0
+    container_name: db-us
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: bdd_mspr_api
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_us:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3320:3306"   # MySQL USA
     networks:
-      - app_network
+      - us_network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       retries: 5
       timeout: 5s
 
-  api:
+  api-us:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3002:3001"
-    depends_on:
-      db:
-        condition: service_healthy  
-    networks:
-      - app_network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    container_name: api-us
     environment:
-      PMA_HOST: db  
-      PMA_PORT: 3306
+      - PAYS_CIBLE=US
     ports:
-      - "8080:80" 
+      - "3020:3001"   # API USA
+    depends_on:
+      db-us:
+        condition: service_healthy
     command: ["node", "server.js"]
     networks:
-      - app_network
+      - us_network
+
+  phpmyadmin-us:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-us
+    environment:
+      PMA_HOST: db-us
+      PMA_PORT: 3306
+    ports:
+      - "8091:80"     # PhpMyAdmin USA
+    networks:
+      - us_network
 
 volumes:
-  db_data:
+  db_data_us:
 
 networks:
-  app_network:
+  us_network:
     driver: bridge

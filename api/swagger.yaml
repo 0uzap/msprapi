@@ -453,7 +453,7 @@ paths:
           description: "Objet pays à ajouter"
           required: true
           schema:
-            $ref: "#/definitions/PaysInput" # Utilisation d'un schéma d'input pour éviter l'ID généré
+            $ref: "#/definitions/PaysInput"
       responses:
         201:
           description: "Pays créé avec succès"
