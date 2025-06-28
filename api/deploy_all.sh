@@ -9,6 +9,7 @@ echo "▶️ [France] build & up"
 docker-compose -f docker-compose.yml -f docker-compose.fr.yml up --build -d
 
 echo "▶️ [France] création des tables"
+cd api
 docker cp create_tables.sql db-fr:/tmp/create_tables.sql
 docker exec -i db-fr sh -c 'cat /tmp/create_tables.sql | mysql -uroot -prootpassword bdd_mspr_api'
 
