@@ -60,11 +60,20 @@ const request = require('supertest');
 const { app, connection } = require('../index');
 
 describe("Test de l'API /users", () => {
+  let token;
 
-  let token; // on va stocker le token JWT ici
-
-  // avant tous les tests => connexion pour récupérer le token
   beforeAll(async () => {
+    // On insère un utilisateur de test dans la BDD (en seed)
+    await connection.query(`
+      INSERT IGNORE INTO users (login, mdp, rôle)
+      VALUES (
+        'testuser',
+        '$2b$10$8jCs6UK.y/T8V6hcgjlGzOZYwWsPdBtCTEJPC/MBCLDy8gio0d/C6', -- hash de "password123"
+        'admin'
+      )
+    `);
+
+    // ensuite on fait le login pour récupérer le token JWT
     const res = await request(app)
       .post("/users/login")
       .send({
@@ -78,7 +87,7 @@ describe("Test de l'API /users", () => {
   it("GET /users => 200 OK et tableau", async () => {
     const res = await request(app)
       .get("/users")
-      .set("Authorization", `Bearer ${token}`); // injection du token
+      .set("Authorization", `Bearer ${token}`); // injecte le token
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -102,6 +111,7 @@ describe("Test de l'API /users", () => {
   });
 
   afterAll(async () => {
+    // Nettoyage : on ferme la connexion MySQL
     await connection.end();
   });
 });

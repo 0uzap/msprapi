@@ -11,8 +11,9 @@ const pays = process.env.PAYS_CIBLE || 'FR';
 console.log("🌍 Environnement pays :", pays);
 
 
-const mysql = require('mysql2');
-const dbHost = process.env.DB_HOST || `loclahost`;
+// const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
+const dbHost = process.env.DB_HOST || `localhost`;
 
 // const connection = mysql.createConnection({
 //     host: 'db',  
@@ -501,122 +502,214 @@ app.delete('/coronavirus_daily/:id', (req, res) => {
 // -------------------------------------------------
 
 // Récupérer tous les utilisateurs
-app.get('/users', verifyToken, (req, res) => {
-    connection.query('SELECT * FROM users', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
+// app.get('/users', verifyToken, (req, res) => {
+//     connection.query('SELECT * FROM users', (err, results) => {
+//         if (err) return res.status(500).json({ error: err.message });
+//         res.json(results);
+//     });
+// });
+
+app.get('/users', verifyToken, async (req, res) => {
+  try {
+    const [results] = await connection.query('SELECT * FROM users');
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Récupérer un utilisateur par ID
-app.get('/users', verifyToken, (req, res) => {
-    connection.query('SELECT * FROM users', (err, results) => {
-        if (err) {
-            console.error("❌ ERREUR /users :", err.message);  // <==== ajoute ceci
-            return res.status(500).json({ error: err.message });
-        }
-        res.json(results);
-    });
-});
+// // Récupérer un utilisateur par ID
+// app.get('/users', verifyToken, (req, res) => {
+//     connection.query('SELECT * FROM users', (err, results) => {
+//         if (err) {
+//             console.error("❌ ERREUR /users :", err.message);  // <==== ajoute ceci
+//             return res.status(500).json({ error: err.message });
+//         }
+//         res.json(results);
+//     });
+// });
 
 
-// Ajouter un nouvel utilisateur
+// // Ajouter un nouvel utilisateur
+// app.post('/users', async (req, res) => {
+//     const { login, mdp, rôle } = req.body;
+
+//     if (!login || !mdp || !rôle) {
+//         return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
+//     }
+
+//     try {
+//         const hashedPassword = await bcrypt.hash(mdp, 10);
+
+//         const newUser = { login, mdp: hashedPassword, rôle };
+
+//         connection.query('INSERT INTO users SET ?', newUser, (err, results) => {
+//             if (err) {
+//                 console.error("❌ ERREUR POST /users :", err.message); // <==== ajoute ceci
+//                 return res.status(500).json({ error: err.message });
+//             }
+//             res.status(201).json({ id: results.insertId, login, rôle });
+//         });
+//     } catch (error) {
+//         console.error("❌ ERREUR POST /users (bcrypt) :", error.message); // <==== ajoute ceci
+//         res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
+//     }
+// });
+
 app.post('/users', async (req, res) => {
-    const { login, mdp, rôle } = req.body;
+  const { login, mdp, rôle } = req.body;
 
-    if (!login || !mdp || !rôle) {
-        return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
-    }
+  if (!login || !mdp || !rôle) {
+    return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
+  }
 
-    try {
-        const hashedPassword = await bcrypt.hash(mdp, 10);
-
-        const newUser = { login, mdp: hashedPassword, rôle };
-
-        connection.query('INSERT INTO users SET ?', newUser, (err, results) => {
-            if (err) {
-                console.error("❌ ERREUR POST /users :", err.message); // <==== ajoute ceci
-                return res.status(500).json({ error: err.message });
-            }
-            res.status(201).json({ id: results.insertId, login, rôle });
-        });
-    } catch (error) {
-        console.error("❌ ERREUR POST /users (bcrypt) :", error.message); // <==== ajoute ceci
-        res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
-    }
+  try {
+    const hashedPassword = await bcrypt.hash(mdp, 10);
+    const newUser = { login, mdp: hashedPassword, rôle };
+    const [results] = await connection.query('INSERT INTO users SET ?', newUser);
+    res.status(201).json({ id: results.insertId, login, rôle });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
-// Mettre à jour un utilisateur existant
+// // Mettre à jour un utilisateur existant
+// app.put('/users/:id', verifyToken, async (req, res) => {
+//     const { login, mdp, rôle } = req.body;
+
+//     if (!login || !mdp || !rôle) {
+//         return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
+//     }
+
+//     try {
+//         const hashedPassword = await bcrypt.hash(mdp, 10);
+
+//         const updatedUser = {
+//             login,
+//             mdp: hashedPassword,
+//             rôle
+//         };
+
+//         connection.query('UPDATE users SET ? WHERE id = ?', [updatedUser, req.params.id], (err) => {
+//             if (err) return res.status(500).json({ error: err.message });
+//             res.json({ message: 'Utilisateur mis à jour avec succès' });
+//         });
+
+//     } catch (error) {
+//         res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
+//     }
+// });
+
 app.put('/users/:id', verifyToken, async (req, res) => {
-    const { login, mdp, rôle } = req.body;
+  const { login, mdp, rôle } = req.body;
 
-    if (!login || !mdp || !rôle) {
-        return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
-    }
+  if (!login || !mdp || !rôle) {
+    return res.status(400).json({ error: "Les champs 'login', 'mdp' et 'rôle' sont obligatoires." });
+  }
 
-    try {
-        const hashedPassword = await bcrypt.hash(mdp, 10);
-
-        const updatedUser = {
-            login,
-            mdp: hashedPassword,
-            rôle
-        };
-
-        connection.query('UPDATE users SET ? WHERE id = ?', [updatedUser, req.params.id], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: 'Utilisateur mis à jour avec succès' });
-        });
-
-    } catch (error) {
-        res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
-    }
+  try {
+    const hashedPassword = await bcrypt.hash(mdp, 10);
+    const updatedUser = { login, mdp: hashedPassword, rôle };
+    await connection.query('UPDATE users SET ? WHERE id = ?', [updatedUser, req.params.id]);
+    res.json({ message: 'Utilisateur mis à jour avec succès' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Supprimer un utilisateur
-app.delete('/users/:id', verifyToken, (req, res) => {
-    connection.query('DELETE FROM users WHERE id = ?', [req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Utilisateur supprimé avec succès' });
-    });
+
+// // Supprimer un utilisateur
+// app.delete('/users/:id', verifyToken, (req, res) => {
+//     connection.query('DELETE FROM users WHERE id = ?', [req.params.id], (err) => {
+//         if (err) return res.status(500).json({ error: err.message });
+//         res.json({ message: 'Utilisateur supprimé avec succès' });
+//     });
+// });
+
+app.delete('/users/:id', verifyToken, async (req, res) => {
+  try {
+    await connection.query('DELETE FROM users WHERE id = ?', [req.params.id]);
+    res.json({ message: 'Utilisateur supprimé avec succès' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Connexion d'un utilisateur
-app.post('/users/login', (req, res) => {
-    const { login, mdp } = req.body;
 
-    if (!login || !mdp) {
-        return res.status(400).json({ error: "Login et mot de passe requis." });
+// // Connexion d'un utilisateur
+// app.post('/users/login', (req, res) => {
+//     const { login, mdp } = req.body;
+
+//     if (!login || !mdp) {
+//         return res.status(400).json({ error: "Login et mot de passe requis." });
+//     }
+
+//     connection.query('SELECT * FROM users WHERE login = ?', [login], async (err, results) => {
+//         if (err) return res.status(500).json({ error: err.message });
+//         if (results.length === 0) return res.status(401).json({ error: "Identifiants incorrects." });
+
+//         const user = results[0];
+//         const isMatch = await bcrypt.compare(mdp, user.mdp);
+
+//         if (!isMatch) {
+//             return res.status(401).json({ error: "Identifiants incorrects." });
+//         }
+
+//         // JWT
+//         const jwt = require(`jsonwebtoken`);
+//         const token = jwt.sign(
+//             { id: user.id, login: user.login, rôle: user.rôle },
+//             process.env.JWT_SECRET || 'mon_secret_super_dur',
+//             { expiresIn: `2h`}
+//         );
+
+//         // Envoi des infos utiles (ne pas envoyer le mot de passe)
+//         res.json({
+//             id: user.id,
+//             login: user.login,
+//             rôle: user.rôle,
+//             token
+//         });
+//     });
+// });
+
+app.post('/users/login', async (req, res) => {
+  const { login, mdp } = req.body;
+
+  if (!login || !mdp) {
+    return res.status(400).json({ error: "Login et mot de passe requis." });
+  }
+
+  try {
+    const [results] = await connection.query('SELECT * FROM users WHERE login = ?', [login]);
+    if (results.length === 0) {
+      return res.status(401).json({ error: "Identifiants incorrects." });
     }
 
-    connection.query('SELECT * FROM users WHERE login = ?', [login], async (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (results.length === 0) return res.status(401).json({ error: "Identifiants incorrects." });
+    const user = results[0];
+    const isMatch = await bcrypt.compare(mdp, user.mdp);
 
-        const user = results[0];
-        const isMatch = await bcrypt.compare(mdp, user.mdp);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Identifiants incorrects." });
+    }
 
-        if (!isMatch) {
-            return res.status(401).json({ error: "Identifiants incorrects." });
-        }
+    const jwt = require(`jsonwebtoken`);
+    const token = jwt.sign(
+      { id: user.id, login: user.login, rôle: user.rôle },
+      process.env.JWT_SECRET || 'mon_secret_super_dur',
+      { expiresIn: '2h' }
+    );
 
-        // JWT
-        const jwt = require(`jsonwebtoken`);
-        const token = jwt.sign(
-            { id: user.id, login: user.login, rôle: user.rôle },
-            process.env.JWT_SECRET || 'mon_secret_super_dur',
-            { expiresIn: `2h`}
-        );
-
-        // Envoi des infos utiles (ne pas envoyer le mot de passe)
-        res.json({
-            id: user.id,
-            login: user.login,
-            rôle: user.rôle,
-            token
-        });
+    res.json({
+      id: user.id,
+      login: user.login,
+      rôle: user.rôle,
+      token
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
