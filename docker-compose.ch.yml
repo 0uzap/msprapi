@@ -1,48 +1,53 @@
 version: '3.8'
 
 services:
-  db:
+  db-ch:
     image: mysql:8.0
+    container_name: db-ch
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: bdd_mspr_api
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_ch:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3330:3306"   # MySQL Suisse
     networks:
-      - app_network
+      - ch_network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       retries: 5
       timeout: 5s
 
-  api:
+  api-ch:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3002:3001"
-    depends_on:
-      db:
-        condition: service_healthy  
-    networks:
-      - app_network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    container_name: api-ch
     environment:
-      PMA_HOST: db  
+      - PAYS_CIBLE=CH
+    ports:
+      - "3030:3001"   # API Suisse
+    depends_on:
+      db-ch:
+        condition: service_healthy
+    networks:
+      - ch_network
+
+  phpmyadmin-ch:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-ch
+    environment:
+      PMA_HOST: db-ch
       PMA_PORT: 3306
     ports:
-      - "8080:80"
+      - "8092:80"     # PhpMyAdmin Suisse
     networks:
-      - app_network
+      - ch_network
 
 volumes:
-  db_data:
+  db_data_ch:
 
 networks:
-  app_network:
+  ch_network:
     driver: bridge

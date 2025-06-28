@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - ci-test
+  pull_request:
+    branches:
+      - ci-test
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: bdd_mspr_api
+        ports:
+          - 3310:3306
+        options: >-
+          --health-cmd="mysqladmin ping -uroot -prootpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./api
+        run: npm install
+
+      - name: Inject database schema
+        run: |
+          sleep 20
+          mysql -h127.0.0.1 -P3310 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
+
+      - name: Run tests
+        working-directory: ./api
+        run: npm test
+
+      - name: Build docker image
+        run: docker build -t mspr-api .

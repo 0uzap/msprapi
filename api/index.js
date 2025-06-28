@@ -1,14 +1,92 @@
+require('dotenv').config();
+
 const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
+const app = express();
 const YAML = require('yamljs');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = YAML.load('./swagger.yaml');
+
+const pays = process.env.PAYS_CIBLE || 'FR';
+console.log("🌍 Environnement pays :", pays);
+
+
+const mysql = require('mysql2');
+const dbHost = process.env.DB_HOST || `loclahost`;
+
+// const connection = mysql.createConnection({
+//     host: 'db',  
+//     user: 'root',
+//     password: 'rootpassword',
+//     database: 'bdd_mspr_api',
+//     port: 3306
+//   });
+
+// const connection = mysql.createConnection({
+//     host: process.env.DB_HOST || 'db',
+//     user: process.env.DB_USER || 'root',
+//     password: process.env.DB_PASSWORD || 'rootpassword',
+//     database: process.env.DB_NAME || 'bdd_mspr_api',
+//     port: process.env.DB_PORT || 3306,
+//     waitForConnections: true,
+//     connectionLimit: 10,
+//     queueLimit: 0
+// });
+
+// ancien
+// const connection = mysql.createConnection({...})
+
+const connection = mysql.createPool({
+    host: process.env.DB_HOST || 'db',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'rootpassword',
+    database: process.env.DB_NAME || 'bdd_mspr_api',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+
+
+
+const connectWithRetry = () => {
+  connection.connect((err) => {
+    if (err) {
+      console.error('❌ Erreur de connexion à MySQL:', err.message);
+      console.log('🔄 Nouvelle tentative de connexion dans 5 secondes...');
+      setTimeout(connectWithRetry, 5000);
+    } else {
+      console.log('✅ Connecté à la base de données MySQL');
+    }
+  });
+};
+
+// connectWithRetry();
+
+
+app.use(express.json());
+
+// nettoyage dynamique des paths
+if (pays === 'FR' || pays === 'CH') {
+  const allowedPaths = ['/users', '/users/{id}', '/users/login']; // autorisés
+  for (const path in swaggerDocument.paths) {
+    if (!allowedPaths.includes(path)) {
+      delete swaggerDocument.paths[path];
+    }
+  }
+  console.log("🚫 Swagger : seules les routes utilisateurs sont documentées pour ce pays");
+}
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+const cors = require('cors');
+
+
 const bcrypt = require('bcrypt');
 
-const swaggerDocument = YAML.load('./api/swagger.yaml');
-console.log('📄 Swagger chargé avec succès');
 
-const app = express();
+
 const port = process.env.PORT || 3001;
 
 app.use(cors());
@@ -24,27 +102,7 @@ app.use((req, res, next) => {
 
 app.options("*", (req, res) => res.sendStatus(200));
 
-const connection = mysql.createConnection({
-    host: 'db',  
-    user: 'root',
-    password: 'rootpassword',
-    database: 'bdd_mspr_api',
-    port: 3306
-  });
 
-const connectWithRetry = () => {
-  connection.connect((err) => {
-    if (err) {
-      console.error('❌ Erreur de connexion à MySQL:', err.message);
-      console.log('🔄 Nouvelle tentative de connexion dans 5 secondes...');
-      setTimeout(connectWithRetry, 5000);
-    } else {
-      console.log('✅ Connecté à la base de données MySQL');
-    }
-  });
-};
-
-connectWithRetry();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -169,6 +227,14 @@ app.get('/', (req, res) => {
 // });
 
 
+// Récupération du pays
+// const pays = process.env.PAYS_CIBLE || 'FR';
+console.log("🌍 Environnement pays :", pays);
+
+// -------------------------------------------------
+// ROUTES A ACTIVER UNIQUEMENT POUR US
+// -------------------------------------------------
+if (pays === 'US') {
 
 
 //CRUD pour continent
@@ -423,6 +489,16 @@ app.delete('/coronavirus_daily/:id', (req, res) => {
     });
 });
 
+
+  console.log("✅ Toutes les routes activées pour les USA");
+} else {
+  console.log("🚫 En France et Suisse : seules les routes utilisateurs sont actives");
+}
+
+// -------------------------------------------------
+// ROUTES /USERS (toujours actives)
+// -------------------------------------------------
+
 // Récupérer tous les utilisateurs
 app.get('/users', (req, res) => {
     connection.query('SELECT * FROM users', (err, results) => {
@@ -432,12 +508,16 @@ app.get('/users', (req, res) => {
 });
 
 // Récupérer un utilisateur par ID
-app.get('/users/:id', (req, res) => {
-    connection.query('SELECT * FROM users WHERE id = ?', [req.params.id], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results[0] || {});
+app.get('/users', (req, res) => {
+    connection.query('SELECT * FROM users', (err, results) => {
+        if (err) {
+            console.error("❌ ERREUR /users :", err.message);  // <==== ajoute ceci
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
     });
 });
+
 
 // Ajouter un nouvel utilisateur
 app.post('/users', async (req, res) => {
@@ -448,24 +528,23 @@ app.post('/users', async (req, res) => {
     }
 
     try {
-        // Hachage du mot de passe
-        const hashedPassword = await bcrypt.hash(mdp, 10); // 10 = nombre de "salt rounds"
+        const hashedPassword = await bcrypt.hash(mdp, 10);
 
-        const newUser = {
-            login,
-            mdp: hashedPassword,
-            rôle
-        };
+        const newUser = { login, mdp: hashedPassword, rôle };
 
         connection.query('INSERT INTO users SET ?', newUser, (err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
+            if (err) {
+                console.error("❌ ERREUR POST /users :", err.message); // <==== ajoute ceci
+                return res.status(500).json({ error: err.message });
+            }
             res.status(201).json({ id: results.insertId, login, rôle });
         });
-
     } catch (error) {
+        console.error("❌ ERREUR POST /users (bcrypt) :", error.message); // <==== ajoute ceci
         res.status(500).json({ error: 'Erreur lors du hachage du mot de passe' });
     }
 });
+
 
 // Mettre à jour un utilisateur existant
 app.put('/users/:id', async (req, res) => {
@@ -531,7 +610,4 @@ app.post('/users/login', (req, res) => {
 });
 
 
-
-app.listen(port, () => {
-  console.log(`🚀 API démarrée sur http://localhost:${port}`);
-});
+module.exports = { app, connection };

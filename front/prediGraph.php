@@ -41,59 +41,97 @@ while ($start <= $end) {
     $start->modify('first day of next month');
 }
 
-// Étape 5 : Données historiques
-$dataPointsCases = [];
-$dataPointsDeaths = [];
-
+// Étape 5 : Données historiques cumulées
+$dataPointsCumul = [];
 foreach ($data as $entry) {
     if ((string)$entry['id_pays'] === (string)$selectedIdPays) {
         $entryDate = substr($entry['date'], 0, 10);
         if (in_array($entryDate, $dates)) {
             $timestamp = strtotime($entryDate) * 1000;
-            $dataPointsCases[] = ["x" => $timestamp, "y" => (int)$entry['casActif']];
-            $dataPointsDeaths[] = ["x" => $timestamp, "y" => (int)$entry['cumulMortTotaux']];
+            $dataPointsCumul[] = ["x" => $timestamp, "y" => (int)$entry['cumulCasTotaux']];
         }
     }
 }
 
+// Étape 6 : Prédictions IA en POST
+$dataPointsPredicted = [];
+$features = [16.0, 5.0, 15.0, 0.0, 0.0, 1];
+$token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1MDk0NzY1OX0.9IEn4PIPsLfj08jKTgKIbnWb_T6hWpZ6XiWK84c7MgA";
+
+$postData = [
+    "features" => $features,
+    "date" => "2022-05-14",
+    "token" => $token
+];
+
+$ch = curl_init("http://localhost:8000/predict");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json'
+]);
+
+$predictionResponse = curl_exec($ch);
+curl_close($ch);
+
+$predictionData = json_decode($predictionResponse, true);
+$lastDate = new DateTime('2022-05-14');
+$lastValue = end($dataPointsCumul)['y'] ?? 100000;
+
+// Point d’ancrage
+$dataPointsPredicted[] = [
+    "x" => $lastDate->getTimestamp() * 1000,
+    "y" => $lastValue
+];
+
+// Ajout des prédictions (3 points)
+if (isset($predictionData['predictions'][0])) {
+    foreach ($predictionData['predictions'][0] as $predicted) {
+        $lastDate->modify('first day of next month');
+        $dataPointsPredicted[] = [
+            "x" => $lastDate->getTimestamp() * 1000,
+            "y" => round($predicted)
+        ];
+    }
+}
 ?>
 <!DOCTYPE HTML>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>MSPR 6.1</title>
+    <title>MSPR 6.1 – Prédictions IA</title>
     <link rel="stylesheet" href="style.css">
     <script>
         window.onload = function () {
-            const normalColors = ["#4F81BC", "#C0504E"];
-            const daltonismColors = ["#0072B2", "#E69F00"];
+            const normalColors = ["#9B59B6", "#009E73"];
+            const daltonismColors = ["#CC79A7", "#2ECC71"];
             let currentColors = [...normalColors];
 
             const chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
-                title: { text: "Data COVID pour <?php echo htmlspecialchars($selectedCountryName); ?>" },
-                subtitles: [{ text: "Cas actifs, morts, cas cumulés et prédictions IA", fontSize: 18 }],
+                title: { text: "Prédictions COVID – <?php echo htmlspecialchars($selectedCountryName); ?>" },
+                subtitles: [{ text: "Cas cumulés & Prédictions IA", fontSize: 18 }],
                 axisY: { title: "Nombre de cas" },
                 legend: { cursor: "pointer", itemclick: toggleDataSeries },
                 toolTip: { shared: true },
                 data: [
                     {
                         type: "area",
-                        name: "Cas actifs",
-                        showInLegend: true,
-                        color: currentColors[0],
-                        xValueType: "dateTime",
-                        xValueFormatString: "MMM YYYY",
-                        dataPoints: <?php echo json_encode($dataPointsCases, JSON_NUMERIC_CHECK); ?>
-                    },
-                    {
-                        type: "area",
-                        name: "Total de morts",
+                        name: "Cas cumulés",
                         showInLegend: true,
                         color: currentColors[1],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
-                        dataPoints: <?php echo json_encode($dataPointsDeaths, JSON_NUMERIC_CHECK); ?>
+                        dataPoints: <?php echo json_encode($dataPointsCumul, JSON_NUMERIC_CHECK); ?>
+                    },
+                    {
+                        type: "area",
+                        name: "Prédiction IA",
+                        showInLegend: true,
+                        color: currentColors[0],
+                        xValueType: "dateTime",
+                        xValueFormatString: "MMM YYYY",
+                        dataPoints: <?php echo json_encode($dataPointsPredicted, JSON_NUMERIC_CHECK); ?>
                     }
                 ]
             });
@@ -106,13 +144,12 @@ foreach ($data as $entry) {
             }
 
             document.getElementById("colorblindToggle").addEventListener("change", function () {
-                const useDaltonism = this.checked;
-                currentColors = useDaltonism ? daltonismColors : normalColors;
-                chart.options.data[0].color = currentColors[0];
-                chart.options.data[1].color = currentColors[1];
+                currentColors = this.checked ? daltonismColors : normalColors;
+                chart.options.data[0].color = currentColors[1];
+                chart.options.data[1].color = currentColors[0];
                 chart.render();
             });
-        }
+        };
     </script>
 </head>
 <body>
@@ -121,7 +158,7 @@ foreach ($data as $entry) {
     <h2>MSPR 6.1</h2>
 </header>
 
-<h1>Évolution des cas actifs et des morts</h1>
+<h1>Prédictions IA – Cas cumulés</h1>
 
 <form method="get">
     <label for="country">Choisir un pays :</label>
@@ -134,22 +171,17 @@ foreach ($data as $entry) {
     </select>
 </form>
 
-<!-- Mode daltonien -->
-<label>
-    <input type="checkbox" id="colorblindToggle"> Mode daltonisme
-</label>
+<!-- Daltonisme -->
+<label><input type="checkbox" id="colorblindToggle"> Mode daltonisme</label>
 
 <!-- Graphique -->
-<div id="chartContainer" style="height: 370px; width: 100%; margin-top: 20px;"></div>
+<div id="chartContainer" style="height: 400px; width: 100%; margin-top: 20px;"></div>
 <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
+<!-- Navigation -->
 <div class="button-container">
-    <a href="graph2.php"><button>Coronavirus monde</button></a>
-    <a href="prediGraph.php"><button>Voir les prédictions de l'IA</button></a>
-    <a href="graph3.php"><button>Monkeypox</button></a>
-</div>
-<div class="button-container">
-    <a href="index_co.php"><button>Retour à l'accueil</button></a>
+    <a href="graph.php"><button>Retour données historiques</button></a>
+    <a href="index_co.php"><button>Accueil</button></a>
 </div>
 
 </body>
