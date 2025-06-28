@@ -26,12 +26,12 @@ services:
     container_name: api-fr
     environment:
       - PAYS_CIBLE=FR
+      - DB_HOST=db-fr
     ports:
       - "3010:3001"  # Port alternatif pour API
     depends_on:
       db-fr:
         condition: service_healthy
-    # command: ["node", "server.js"]
     networks:
       - fr_network
 

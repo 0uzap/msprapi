@@ -26,12 +26,12 @@ services:
     container_name: api-us
     environment:
       - PAYS_CIBLE=US
+      - DB_HOST=db-us
     ports:
       - "3020:3001"   # API USA
     depends_on:
       db-us:
         condition: service_healthy
-    # command: ["node", "server.js"]
     networks:
       - us_network
 
