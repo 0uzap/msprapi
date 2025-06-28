@@ -39,6 +39,15 @@ jobs:
         working-directory: ./api
         run: npm install
 
+      - name: Wait for MySQL
+        run: |
+          sudo apt-get install -y mysql-client
+          until mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -e "SELECT 1"; do
+            echo "⏳ Attente de MySQL..."
+            sleep 5
+          done
+          echo "✅ MySQL est prêt"
+
       - name: Run tests
         working-directory: ./api
         run: npm test
