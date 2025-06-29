@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-reverse-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - mspr_fr_network
+      - mspr_us_network
+      - mspr_ch_network
+
+networks:
+  mspr_fr_network:
+    external: true
+  mspr_us_network:
+    external: true
+  mspr_ch_network:
+    external: true
