@@ -26,6 +26,7 @@ services:
     container_name: api-ch
     environment:
       - PAYS_CIBLE=CH
+      - DB_HOST=db-ch
     ports:
       - "3030:3001"   # API Suisse
     depends_on:
