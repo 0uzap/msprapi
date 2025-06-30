@@ -1,6 +1,35 @@
 <?php
+// 1) Mémorisation du serveur via GET (us, fr, ch)
+$server = $_GET['server'] ?? 'us';
+if (! in_array($server, ['us','fr','ch'])) {
+    $server = 'us';
+}
+
+// 2) Si pas US, message d'erreur et exit
+if ($server !== 'us') {
+    $errors = [
+        'fr' => "Accès refusé : votre serveur ne permet pas d'accéder à ces données.",
+        'ch' => "Accès refusé : votre serveur ne permet pas d'accéder à ces données. / "
+               . "Zugriff verweigert: Ihr Server erlaubt keinen Zugriff auf diese Daten. / "
+               . "Accesso negato: il tuo server non consente l'accesso a questi dati."
+    ];
+    $msg = $errors[$server] ?? $errors['fr'];
+    echo <<<HTML
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Error</title>
+<style>body{font-family:sans-serif}.error{color:red;text-align:center;margin-top:50px}</style>
+</head>
+<body>
+  <p class="error">{$msg}</p>
+</body>
+</html>
+HTML;
+    exit;
+}
+
 // Appel API 
-$url = "http://localhost:3002/monkeypox_data";
+$url = "http://localhost:3020/monkeypox_data";
 $response = file_get_contents($url);
 $data = json_decode($response, true);
 
@@ -31,13 +60,12 @@ $dates[] = $end->format('Y-m-d');
 // Filtrer les données par pays
 $dataPointsCases = [];
 $dataPointsDeaths = [];
-
 foreach ($data as $entry) {
     if ($entry['pays'] === $selectedCountry) {
         $entryDate = substr($entry['date'], 0, 10);
         if (in_array($entryDate, $dates)) {
             $timestamp = strtotime($entryDate) * 1000;
-            $dataPointsCases[] = ["x" => $timestamp, "y" => (int)$entry['nbCasTotaux']];
+            $dataPointsCases[]  = ["x" => $timestamp, "y" => (int)$entry['nbCasTotaux']];
             $dataPointsDeaths[] = ["x" => $timestamp, "y" => (int)$entry['nbMortTotaux']];
         }
     }
@@ -46,6 +74,7 @@ foreach ($data as $entry) {
 <!DOCTYPE HTML>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>MSPR 6.1</title>
     <link rel="stylesheet" href="style.css">
     <script>
@@ -56,32 +85,33 @@ foreach ($data as $entry) {
 
             const chart = new CanvasJS.Chart("chartContainer", {
                 animationEnabled: true,
-                title: { text: "Données Monkeypox - <?php echo htmlspecialchars($selectedCountry); ?>" },
-                subtitles: [{ text: "Total des cas et décès", fontSize: 18 }],
-                axisY: { title: "Nombre de cas / décès" },
+                title: { text: "Monkeypox Data - <?= htmlspecialchars($selectedCountry) ?>" },
+                subtitles: [{ text: "Total cases and deaths", fontSize: 18 }],
+                axisY: { title: "Count" },
                 legend: { cursor: "pointer", itemclick: toggleDataSeries },
                 toolTip: { shared: true },
                 data: [
                     {
                         type: "area",
-                        name: "Cas totaux",
+                        name: "Total Cases",
                         showInLegend: true,
                         color: currentColors[0],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
-                        dataPoints: <?php echo json_encode($dataPointsCases, JSON_NUMERIC_CHECK); ?>
+                        dataPoints: <?= json_encode($dataPointsCases, JSON_NUMERIC_CHECK); ?>
                     },
                     {
                         type: "area",
-                        name: "Décès totaux",
+                        name: "Total Deaths",
                         showInLegend: true,
                         color: currentColors[1],
                         xValueType: "dateTime",
                         xValueFormatString: "MMM YYYY",
-                        dataPoints: <?php echo json_encode($dataPointsDeaths, JSON_NUMERIC_CHECK); ?>
+                        dataPoints: <?= json_encode($dataPointsDeaths, JSON_NUMERIC_CHECK); ?>
                     }
                 ]
             });
+
             chart.render();
 
             function toggleDataSeries(e) {
@@ -105,10 +135,10 @@ foreach ($data as $entry) {
         <h2>MSPR 6.1</h2>
     </header>
 
-    <h1>Evolution Monkeypox</h1>
+    <h1>Monkeypox Evolution</h1>
 
     <form method="get">
-        <label for="country">Choisir un pays :</label>
+        <label for="country">Choose a country:</label>
         <select name="country" id="country" onchange="this.form.submit()">
             <?php foreach ($countries as $country): ?>
                 <option value="<?= htmlspecialchars($country) ?>" <?= $selectedCountry === $country ? 'selected' : '' ?>>
@@ -116,11 +146,13 @@ foreach ($data as $entry) {
                 </option>
             <?php endforeach; ?>
         </select>
+        <!-- Propagation du serveur -->
+        <input type="hidden" name="server" value="<?= $server ?>">
     </form>
 
-    <!-- Case à cocher daltonisme -->
+    <!-- Mode daltonisme -->
     <label>
-        <input type="checkbox" id="colorblindToggle"> Mode daltonisme
+        <input type="checkbox" id="colorblindToggle"> Colorblind mode
     </label>
 
     <!-- Graphique -->
@@ -128,9 +160,9 @@ foreach ($data as $entry) {
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
     <div class="button-container">
-        <a href="graph2.php"><button>Coronavirus monde</button></a>
-        <a href="index_co.php"><button>Retour à l'accueil</button></a>
-        <a href="graph.php"><button>Coronavirus journalier</button></a>
+        <a href="graph2.php?server=<?= $server ?>"><button>Coronavirus Global</button></a>
+        <a href="index_co.php?server=<?= $server ?>"><button>Back to home</button></a>
+        <a href="graph.php?server=<?= $server ?>"><button>Coronavirus daily</button></a>
     </div>
 
 </body>

@@ -1,15 +1,15 @@
 :root {
     --mspr-blue: #007BFF;
 
-    /*Palette daltonisme*/
-    --color-dp-blue: #0072B2;
+    /* Palette daltonisme */
+    --color-dp-blue:   #0072B2;
     --color-dp-orange: #E69F00;
     --color-dp-yellow: #F0E442;
     --color-dp-purple: #CC79A7;
-    --color-dp-black: #000000;
-    --color-dp-grey: #999999;
-    --color-dp-cyan: #56B4E9;
-    --color-dp-brown: #A65628;
+    --color-dp-black:  #000000;
+    --color-dp-grey:   #999999;
+    --color-dp-cyan:   #56B4E9;
+    --color-dp-brown:  #A65628;
 }
 
 body {
@@ -17,6 +17,12 @@ body {
     text-align: center;
     margin: 0;
     background-color: #f0f8ff;
+
+    /* 1) container fluide */
+    width: 90%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 header {
@@ -29,9 +35,14 @@ header {
 
 h1 {
     color: #333;
+    margin: 1rem 0;
 }
 
+/* boutons alignés en flex et responsive */
 .button-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     margin-top: 20px;
 }
 
@@ -49,4 +60,43 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* === MEDIA QUERIES === */
+
+/* Tablette / petits écrans paysage */
+@media (max-width: 768px) {
+    body {
+        width: 95%;
+    }
+    header {
+        padding: 15px 0;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    .button-container {
+        flex-direction: column;
+    }
+    button {
+        width: 100%;
+        max-width: 350px;
+        margin: 8px auto;
+        font-size: 15px;
+        padding: 10px;
+    }
+}
+
+/* Mobile / portrait */
+@media (max-width: 480px) {
+    header {
+        padding: 10px 0;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
 }
