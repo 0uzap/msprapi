@@ -1,57 +1,136 @@
+# # # # # name: CI
+
+# # # # # on:
+# # # # #   push:
+# # # # #     branches:
+# # # # #       - main
+# # # # #       - ci-test
+# # # # #   pull_request:
+# # # # #     branches:
+# # # # #       - main
+# # # # #       - ci-test
+
+# # # # # jobs:
+# # # # #   test:
+# # # # #     runs-on: ubuntu-latest
+
+# # # # #     services:
+# # # # #       mysql:
+# # # # #         image: mysql:8
+# # # # #         env:
+# # # # #           MYSQL_ROOT_PASSWORD: rootpassword
+# # # # #           MYSQL_DATABASE: bdd_mspr_api
+# # # # #         ports:
+# # # # #           - 3310:3306
+# # # # #         options: >-
+# # # # #           --health-cmd="mysqladmin ping -uroot -prootpassword"
+# # # # #           --health-interval=10s
+# # # # #           --health-timeout=5s
+# # # # #           --health-retries=5
+
+# # # # #     steps:
+# # # # #       - name: Checkout code
+# # # # #         uses: actions/checkout@v3
+
+# # # # #       - name: Set up Node
+# # # # #         uses: actions/setup-node@v3
+# # # # #         with:
+# # # # #           node-version: '18'
+
+# # # # #       - name: Install dependencies
+# # # # #         working-directory: ./api
+# # # # #         run: npm install
+
+# # # # #       - name: Inject database schema
+# # # # #         run: |
+# # # # #           sleep 20
+# # # # #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
+
+# # # # #       - name: Run tests
+# # # # #         working-directory: ./api
+# # # # #         run: npm test
+
+# # # # #       - name: Build docker image
+# # # # #         run: docker build -t mspr-api .
+
 # # # # name: CI
 
 # # # # on:
 # # # #   push:
-# # # #     branches:
-# # # #       - main
-# # # #       - ci-test
+# # # #     branches: [main, ci-test]
 # # # #   pull_request:
-# # # #     branches:
-# # # #       - main
-# # # #       - ci-test
+# # # #     branches: [main, ci-test]
 
 # # # # jobs:
 # # # #   test:
 # # # #     runs-on: ubuntu-latest
 
+# # # #     # Variables d'env pour la CI (prioritaires sur .env.test)
+# # # #     env:
+# # # #       DB_HOST: 127.0.0.1
+# # # #       DB_PORT: "3310"
+# # # #       DB_USER: root
+# # # #       DB_PASSWORD: rootpassword
+# # # #       DB_NAME: bdd_mspr_api
+# # # #       NODE_ENV: test
+# # # #       PAYS_CIBLE: US
+# # # #       JWT_SECRET: testsecret
+
 # # # #     services:
 # # # #       mysql:
-# # # #         image: mysql:8
+# # # #         image: mysql:8.0
 # # # #         env:
 # # # #           MYSQL_ROOT_PASSWORD: rootpassword
 # # # #           MYSQL_DATABASE: bdd_mspr_api
 # # # #         ports:
 # # # #           - 3310:3306
 # # # #         options: >-
-# # # #           --health-cmd="mysqladmin ping -uroot -prootpassword"
-# # # #           --health-interval=10s
+# # # #           --health-cmd="mysqladmin ping -h 127.0.0.1 -prootpassword --silent"
+# # # #           --health-interval=5s
 # # # #           --health-timeout=5s
-# # # #           --health-retries=5
+# # # #           --health-retries=20
 
 # # # #     steps:
 # # # #       - name: Checkout code
-# # # #         uses: actions/checkout@v3
+# # # #         uses: actions/checkout@v4
 
 # # # #       - name: Set up Node
-# # # #         uses: actions/setup-node@v3
+# # # #         uses: actions/setup-node@v4
 # # # #         with:
-# # # #           node-version: '18'
+# # # #           node-version: '20'
+# # # #           cache: 'npm'
+# # # #           cache-dependency-path: api/package-lock.json
+
+# # # #       - name: Install MySQL client
+# # # #         run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+# # # #       - name: Wait for MySQL healthy
+# # # #         run: |
+# # # #           for i in {1..60}; do
+# # # #             mysqladmin ping -h 127.0.0.1 -P 3310 -prootpassword --silent && break
+# # # #             echo "⏳ waiting for MySQL ($i/60)"; sleep 1
+# # # #           done
+
+# # # #       # IMPORTANT : crée les tables (DDL) dans la base vide
+# # # #       - name: Inject database schema
+# # # #         run: |
+# # # #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
 
 # # # #       - name: Install dependencies
 # # # #         working-directory: ./api
-# # # #         run: npm install
-
-# # # #       - name: Inject database schema
-# # # #         run: |
-# # # #           sleep 20
-# # # #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
+# # # #         run: npm ci
 
 # # # #       - name: Run tests
 # # # #         working-directory: ./api
 # # # #         run: npm test
 
-# # # #       - name: Build docker image
-# # # #         run: docker build -t mspr-api .
+# # # #       # Optionnel : publier le rapport de couverture HTML en artifact
+# # # #       - name: Upload coverage artifact
+# # # #         if: always()
+# # # #         uses: actions/upload-artifact@v4
+# # # #         with:
+# # # #           name: coverage
+# # # #           path: api/coverage
 
 # # # name: CI
 
@@ -65,7 +144,6 @@
 # # #   test:
 # # #     runs-on: ubuntu-latest
 
-# # #     # Variables d'env pour la CI (prioritaires sur .env.test)
 # # #     env:
 # # #       DB_HOST: 127.0.0.1
 # # #       DB_PORT: "3310"
@@ -88,7 +166,7 @@
 # # #           --health-cmd="mysqladmin ping -h 127.0.0.1 -prootpassword --silent"
 # # #           --health-interval=5s
 # # #           --health-timeout=5s
-# # #           --health-retries=20
+# # #           --health-retries=30
 
 # # #     steps:
 # # #       - name: Checkout code
@@ -107,14 +185,36 @@
 # # #       - name: Wait for MySQL healthy
 # # #         run: |
 # # #           for i in {1..60}; do
-# # #             mysqladmin ping -h 127.0.0.1 -P 3310 -prootpassword --silent && break
+# # #             if mysqladmin ping -h 127.0.0.1 -P 3310 -prootpassword --silent; then
+# # #               echo "MySQL is up"; break
+# # #             fi
 # # #             echo "⏳ waiting for MySQL ($i/60)"; sleep 1
 # # #           done
+# # #           # Petit check de connexion
+# # #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -e "SELECT VERSION();"
 
-# # #       # IMPORTANT : crée les tables (DDL) dans la base vide
-# # #       - name: Inject database schema
+# # #       - name: Show repo layout (debug)
 # # #         run: |
-# # #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword bdd_mspr_api < ./api/sql/init.sql
+# # #           pwd
+# # #           ls -la
+# # #           ls -la api
+# # #           ls -la api/sql || true
+
+# # #       - name: Inject database schema
+# # #         working-directory: ./api
+# # #         run: |
+# # #           set -euo pipefail
+# # #           test -f sql/init.sql || (echo "❌ api/sql/init.sql introuvable" && exit 1)
+# # #           echo "🚀 Import du schéma..."
+# # #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword bdd_mspr_api < sql/init.sql
+# # #           echo "✅ Schéma importé"
+
+# # #       - name: Verify tables exist
+# # #         run: |
+# # #           echo "🔎 Tables présentes :"
+# # #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -D bdd_mspr_api -e "SHOW TABLES;"
+# # #           echo "🔎 Vérif colonnes 'continent' (si existe):"
+# # #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE continent;" || true
 
 # # #       - name: Install dependencies
 # # #         working-directory: ./api
@@ -124,7 +224,6 @@
 # # #         working-directory: ./api
 # # #         run: npm test
 
-# # #       # Optionnel : publier le rapport de couverture HTML en artifact
 # # #       - name: Upload coverage artifact
 # # #         if: always()
 # # #         uses: actions/upload-artifact@v4
@@ -136,116 +235,88 @@
 
 # # on:
 # #   push:
-# #     branches: [main, ci-test]
+# #     branches:
+# #       - main
+# #       - ci-test
 # #   pull_request:
-# #     branches: [main, ci-test]
+# #     branches:
+# #       - main
+# #       - ci-test
 
 # # jobs:
 # #   test:
 # #     runs-on: ubuntu-latest
 
-# #     env:
-# #       DB_HOST: 127.0.0.1
-# #       DB_PORT: "3310"
-# #       DB_USER: root
-# #       DB_PASSWORD: rootpassword
-# #       DB_NAME: bdd_mspr_api
-# #       NODE_ENV: test
-# #       PAYS_CIBLE: US
-# #       JWT_SECRET: testsecret
-
 # #     services:
 # #       mysql:
-# #         image: mysql:8.0
+# #         image: mysql:8
 # #         env:
 # #           MYSQL_ROOT_PASSWORD: rootpassword
 # #           MYSQL_DATABASE: bdd_mspr_api
 # #         ports:
 # #           - 3310:3306
 # #         options: >-
-# #           --health-cmd="mysqladmin ping -h 127.0.0.1 -prootpassword --silent"
-# #           --health-interval=5s
+# #           --health-cmd="mysqladmin ping -uroot -prootpassword"
+# #           --health-interval=10s
 # #           --health-timeout=5s
-# #           --health-retries=30
+# #           --health-retries=5
 
 # #     steps:
 # #       - name: Checkout code
-# #         uses: actions/checkout@v4
+# #         uses: actions/checkout@v3
 
 # #       - name: Set up Node
-# #         uses: actions/setup-node@v4
+# #         uses: actions/setup-node@v3
 # #         with:
-# #           node-version: '20'
-# #           cache: 'npm'
-# #           cache-dependency-path: api/package-lock.json
-
-# #       - name: Install MySQL client
-# #         run: sudo apt-get update && sudo apt-get install -y mysql-client
-
-# #       - name: Wait for MySQL healthy
-# #         run: |
-# #           for i in {1..60}; do
-# #             if mysqladmin ping -h 127.0.0.1 -P 3310 -prootpassword --silent; then
-# #               echo "MySQL is up"; break
-# #             fi
-# #             echo "⏳ waiting for MySQL ($i/60)"; sleep 1
-# #           done
-# #           # Petit check de connexion
-# #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -e "SELECT VERSION();"
-
-# #       - name: Show repo layout (debug)
-# #         run: |
-# #           pwd
-# #           ls -la
-# #           ls -la api
-# #           ls -la api/sql || true
-
-# #       - name: Inject database schema
-# #         working-directory: ./api
-# #         run: |
-# #           set -euo pipefail
-# #           test -f sql/init.sql || (echo "❌ api/sql/init.sql introuvable" && exit 1)
-# #           echo "🚀 Import du schéma..."
-# #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword bdd_mspr_api < sql/init.sql
-# #           echo "✅ Schéma importé"
-
-# #       - name: Verify tables exist
-# #         run: |
-# #           echo "🔎 Tables présentes :"
-# #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -D bdd_mspr_api -e "SHOW TABLES;"
-# #           echo "🔎 Vérif colonnes 'continent' (si existe):"
-# #           mysql -h 127.0.0.1 -P 3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE continent;" || true
+# #           node-version: '18'
 
 # #       - name: Install dependencies
 # #         working-directory: ./api
-# #         run: npm ci
+# #         run: npm install
+
+# #       - name: Inject database schema
+# #         run: |
+# #           # On injecte le schéma complet (toutes les tables nécessaires)
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword bdd_mspr_api < ./api/create_tables.sql
+
+# #       - name: Verify tables exist
+# #         run: |
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "SHOW TABLES;"
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE continent;"
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE pays;"
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE covid_country;"
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE monkeypox_data;"
+# #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE coronavirus_daily;"
 
 # #       - name: Run tests
 # #         working-directory: ./api
 # #         run: npm test
 
-# #       - name: Upload coverage artifact
-# #         if: always()
-# #         uses: actions/upload-artifact@v4
-# #         with:
-# #           name: coverage
-# #           path: api/coverage
+# #       - name: Build docker image
+# #         run: docker build -t mspr-api .
 
 # name: CI
 
 # on:
 #   push:
-#     branches:
-#       - main
-#       - ci-test
+#     branches: [ main, ci-test ]
 #   pull_request:
-#     branches:
-#       - main
-#       - ci-test
+#     branches: [ main, ci-test ]
 
 # jobs:
 #   test:
 #     runs-on: ubuntu-latest
+
+#     env:
+#       # Vars que ton app/jest lisent (équivalent .env.test)
+#       DB_HOST: 127.0.0.1
+#       DB_PORT: "3310"
+#       DB_USER: root
+#       DB_PASSWORD: rootpassword
+#       DB_NAME: bdd_mspr_api
+#       NODE_ENV: test
+#       PAYS_CIBLE: US
+#       JWT_SECRET: testsecret
 
 #     services:
 #       mysql:
@@ -257,43 +328,72 @@
 #           - 3310:3306
 #         options: >-
 #           --health-cmd="mysqladmin ping -uroot -prootpassword"
-#           --health-interval=10s
+#           --health-interval=5s
 #           --health-timeout=5s
-#           --health-retries=5
+#           --health-retries=20
 
 #     steps:
 #       - name: Checkout code
-#         uses: actions/checkout@v3
+#         uses: actions/checkout@v4
 
-#       - name: Set up Node
-#         uses: actions/setup-node@v3
+#       - name: Setup Node
+#         uses: actions/setup-node@v4
 #         with:
-#           node-version: '18'
+#           node-version: "20"
 
-#       - name: Install dependencies
-#         working-directory: ./api
-#         run: npm install
-
-#       - name: Inject database schema
+#       - name: Install MySQL client
 #         run: |
-#           # On injecte le schéma complet (toutes les tables nécessaires)
-#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword bdd_mspr_api < ./api/create_tables.sql
+#           sudo apt-get update
+#           sudo apt-get install -y mysql-client
 
-#       - name: Verify tables exist
+#       - name: Wait for MySQL
 #         run: |
+#           for i in {1..60}; do
+#             if mysql -h127.0.0.1 -P3310 -uroot -prootpassword -e "SELECT VERSION()"; then
+#               echo "MySQL is up"
+#               break
+#             fi
+#             echo "Waiting for MySQL..."
+#             sleep 2
+#           done
+
+#       - name: Show repo layout
+#         run: |
+#           pwd
+#           ls -la
+#           ls -la api
+#           ls -la api/sql
+
+#       - name: Inject minimal schema (create_tables.sql)
+#         run: |
+#           echo "🚀 Import du schéma minimal..."
+#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api < ./api/create_tables.sql
+#           echo "✅ Schéma importé"
+      
+#       - name: Import table users + seed
+#         run: mysql -h127.0.0.1 -P3310 -uroot -prootpassword < ./api/sql/init.sql
+
+#       - name: Sanity check tables
+#         run: |
+#           echo "🔎 Tables présentes :"
 #           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "SHOW TABLES;"
-#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE continent;"
-#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE pays;"
-#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE covid_country;"
-#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE monkeypox_data;"
-#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "DESCRIBE coronavirus_daily;"
+#           echo "🔎 Colonnes 'users' :"
+#           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api -e "SHOW COLUMNS FROM users;"
+
+#       - name: Install deps
+#         working-directory: ./api
+#         run: npm ci
 
 #       - name: Run tests
 #         working-directory: ./api
 #         run: npm test
 
-#       - name: Build docker image
-#         run: docker build -t mspr-api .
+#       - name: Upload coverage artifact
+#         if: always()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: coverage
+#           path: api/coverage
 
 name: CI
 
@@ -308,7 +408,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Vars que ton app/jest lisent (équivalent .env.test)
       DB_HOST: 127.0.0.1
       DB_PORT: "3310"
       DB_USER: root
@@ -369,9 +468,10 @@ jobs:
           echo "🚀 Import du schéma minimal..."
           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api < ./api/create_tables.sql
           echo "✅ Schéma importé"
-      
+
       - name: Import table users + seed
-        run: mysql -h127.0.0.1 -P3310 -uroot -prootpassword < ./api/sql/init.sql
+        run: |
+          mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api < ./api/sql/init.sql
 
       - name: Sanity check tables
         run: |
