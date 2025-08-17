@@ -369,6 +369,9 @@ jobs:
           echo "🚀 Import du schéma minimal..."
           mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api < ./api/create_tables.sql
           echo "✅ Schéma importé"
+      
+      - name: Import table users + seed
+        run: mysql -h127.0.0.1 -P3310 -uroot -prootpassword < ./api/sql/init.sql
 
       - name: Sanity check tables
         run: |
