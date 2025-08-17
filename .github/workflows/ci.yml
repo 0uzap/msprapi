@@ -367,7 +367,7 @@ jobs:
       - name: Inject minimal schema (create_tables.sql)
         run: |
           echo "🚀 Import du schéma minimal..."
-          mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api < ./api/sql/create_tables.sql
+          mysql -h127.0.0.1 -P3310 -uroot -prootpassword -D bdd_mspr_api < ./api/create_tables.sql
           echo "✅ Schéma importé"
 
       - name: Sanity check tables
