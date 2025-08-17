@@ -10,7 +10,7 @@ services:
     volumes:
       - db_data_fr:/var/lib/mysql
     ports:
-      - "3310:3306"  # Port alternatif pour MySQL
+      - "3310:3306"  
     networks:
       - fr_network
     healthcheck:
@@ -28,7 +28,7 @@ services:
       - PAYS_CIBLE=FR
       - DB_HOST=db-fr
     ports:
-      - "3010:3001"  # Port alternatif pour API
+      - "3010:3001" 
     depends_on:
       db-fr:
         condition: service_healthy
@@ -42,7 +42,7 @@ services:
       PMA_HOST: db-fr
       PMA_PORT: 3306
     ports:
-      - "8090:80"  # Port alternatif pour PhpMyAdmin
+      - "8090:80"  
     networks:
       - fr_network
 

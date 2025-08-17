@@ -10,7 +10,7 @@ services:
     volumes:
       - db_data_ch:/var/lib/mysql
     ports:
-      - "3330:3306"   # MySQL Suisse
+      - "3330:3306"  
     networks:
       - ch_network
     healthcheck:
@@ -28,7 +28,7 @@ services:
       - PAYS_CIBLE=CH
       - DB_HOST=db-ch
     ports:
-      - "3030:3001"   # API Suisse
+      - "3030:3001"  
     depends_on:
       db-ch:
         condition: service_healthy
@@ -42,7 +42,7 @@ services:
       PMA_HOST: db-ch
       PMA_PORT: 3306
     ports:
-      - "8092:80"     # PhpMyAdmin Suisse
+      - "8092:80"    
     networks:
       - ch_network
 

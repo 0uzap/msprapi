@@ -10,7 +10,7 @@ services:
     volumes:
       - db_data_us:/var/lib/mysql
     ports:
-      - "3320:3306"   # MySQL USA
+      - "3320:3306"  
     networks:
       - us_network
     healthcheck:
@@ -28,7 +28,7 @@ services:
       - PAYS_CIBLE=US
       - DB_HOST=db-us
     ports:
-      - "3020:3001"   # API USA
+      - "3020:3001"  
     depends_on:
       db-us:
         condition: service_healthy
@@ -42,7 +42,7 @@ services:
       PMA_HOST: db-us
       PMA_PORT: 3306
     ports:
-      - "8091:80"     # PhpMyAdmin USA
+      - "8091:80"   
     networks:
       - us_network
 
