@@ -1,7 +1,7 @@
-process.env.PAYS_CIBLE = "US";
+process.env.PAYS_CIBLE = 'US';
 jest.resetModules();
+const { app, connection, request, mockOnceQueryReject } = require('./helpers');
 
-const { app, connection, request, mockOnceQueryReject } = require("./helpers");
 
 describe("API /covid_country - CRUD + erreurs", () => {
   beforeAll(async () => {

@@ -1,9 +1,7 @@
-// Active toutes les routes
-process.env.PAYS_CIBLE = "US";
+process.env.PAYS_CIBLE = 'US';
 jest.resetModules();
+const { app, connection, request, mockOnceQueryReject } = require('./helpers');
 
-// IMPORTANT: on prend tout depuis le helper (app, connection, request, mock)
-const { app, connection, request, mockOnceQueryReject } = require("./helpers");
 
 describe("API /continents - CRUD + erreurs", () => {
   it("POST /continents => 201 OK", async () => {

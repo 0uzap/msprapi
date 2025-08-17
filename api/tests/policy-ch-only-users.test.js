@@ -1,8 +1,8 @@
+// CH
 process.env.PAYS_CIBLE = 'CH';
 jest.resetModules();
+const { app, request } = require('./helpers');
 
-const request = require('supertest');
-const { app, connection } = require('../index');
 
 describe('CH => seules routes /users actives', () => {
   it('GET /continents => 404 ; POST /users/login (existe, 400 si vide)', async () => {
@@ -13,5 +13,4 @@ describe('CH => seules routes /users actives', () => {
     expect(bad.statusCode).toBe(400);
   });
 
-  afterAll(async () => { await connection.end(); });
 });

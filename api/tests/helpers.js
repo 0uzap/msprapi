@@ -15,4 +15,11 @@ function mockOnceQueryReject(msg = 'DB error') {
   };
 }
 
-module.exports = { app, connection, request, mockOnceQueryReject };
+module.exports = {
+  app,
+  connection,
+  request,             
+  mockOnceQueryReject, 
+  getValidToken, 
+};
+

@@ -30,14 +30,16 @@
     "supertest": "^7.1.1"
   },
   "jest": {
-    "collectCoverage": true,
-    "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "html", "lcov"],
-    "collectCoverageFrom": [
-      "index.js",
-      "middleware/**/*.js",
-      "!**/node_modules/**",
-      "!**/tests/**"
-    ]
+  "testEnvironment": "node",
+  "globalTeardown": "<rootDir>/tests/jest.teardown.js",
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "html", "lcov"],
+  "collectCoverageFrom": [
+    "index.js",
+    "middleware/**/*.js",
+    "!**/node_modules/**",
+    "!**/tests/**"
+  ]
   }
 }
