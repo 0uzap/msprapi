@@ -13,7 +13,7 @@ $lang = $_GET['lang'] ?? ($serverType === 'ch' ? 'fr' : ($serverType === 'us' ? 
 $texts = [
     'fr' => [
         'title' => 'Inscription',
-        'header' => 'MSPR 6.1',
+        'header' => 'MSPR 6.3',
         'heading' => 'Inscription',
         'login' => 'Login :',
         'password' => 'Mot de passe :',
@@ -32,7 +32,7 @@ $texts = [
     ],
     'en' => [
         'title' => 'Register',
-        'header' => 'MSPR 6.1',
+        'header' => 'MSPR 6.3',
         'heading' => 'Register',
         'login' => 'Login:',
         'password' => 'Password:',
@@ -51,7 +51,7 @@ $texts = [
     ],
     'de' => [
         'title' => 'Registrierung',
-        'header' => 'MSPR 6.1',
+        'header' => 'MSPR 6.3',
         'heading' => 'Registrierung',
         'login' => 'Login:',
         'password' => 'Passwort:',
@@ -70,7 +70,7 @@ $texts = [
     ],
     'it' => [
         'title' => 'Registrazione',
-        'header' => 'MSPR 6.1',
+        'header' => 'MSPR 6.3',
         'heading' => 'Registrazione',
         'login' => 'Login:',
         'password' => 'Password:',
@@ -98,6 +98,7 @@ $t = $texts[$lang];
     <meta charset="UTF-8">
     <title><?= $t['title'] ?></title>
     <link rel="stylesheet" href="style_form.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 

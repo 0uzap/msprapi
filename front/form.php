@@ -60,11 +60,12 @@ $txt = $texts[$lang] ?? $texts['fr'];
     <meta charset="UTF-8">
     <title><?= $txt['title'] ?></title>
     <link rel="stylesheet" href="style_form.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
 <header>
-    <h2>MSPR 6.1</h2>
+    <h2>MSPR 6.3</h2>
 </header>
 
 <?php if ($server === 'ch'): ?>

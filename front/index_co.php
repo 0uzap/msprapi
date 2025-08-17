@@ -7,27 +7,23 @@ if (!in_array($serverType, ['us', 'fr', 'ch'])) {
 
 // 2) Vérification du token si serveur = fr
 $isTokenVerified = false;
-
 if ($serverType === 'fr') {
     if (empty($_COOKIE['token'])) {
         header('Location: form.php?server=fr');
         exit;
     }
-
     $opts = ['http' => [
         'method' => 'GET',
         'header' => "Authorization: Bearer {$_COOKIE['token']}\r\n"
     ]];
     $ctx = stream_context_create($opts);
     $verify = @file_get_contents('http://localhost:3010/verify', false, $ctx);
-
     if ($verify !== 'OK') {
         setcookie('token', '', time() - 3600, '/');
         header('Location: form.php?server=fr');
         exit;
     }
-
-    $isTokenVerified = true; // <- confirmation que la vérification a réussi
+    $isTokenVerified = true;
 }
 
 // 3) Détection de la langue
@@ -42,7 +38,7 @@ if ($serverType === 'ch') {
 // 5) Dictionnaire de traduction
 $texts = [
     'fr' => [
-        'title'     => 'MSPR 6.1',
+        'title'     => 'MSPR 6.3',
         'heading'   => 'Accès aux graphiques',
         'world'     => 'Coronavirus monde',
         'daily'     => 'Coronavirus journalier',
@@ -55,7 +51,7 @@ $texts = [
         'token_verified' => "✅ Token vérifié avec succès"
     ],
     'en' => [
-        'title'     => 'MSPR 6.1',
+        'title'     => 'MSPR 6.3',
         'heading'   => 'Graph Access',
         'world'     => 'Coronavirus Global',
         'daily'     => 'Coronavirus Daily',
@@ -65,10 +61,9 @@ $texts = [
         'language'  => 'Language',
         'login_msg' => 'Logged in as:',
         'ai_predictions' => "See AI predictions",
-        'token_verified' => "✅ Token successfully verified"
     ],
     'de' => [
-        'title'     => 'MSPR 6.1',
+        'title'     => 'MSPR 6.3',
         'heading'   => 'Grafikzugriff',
         'world'     => 'Coronavirus Weltweit',
         'daily'     => 'Coronavirus täglich',
@@ -78,10 +73,9 @@ $texts = [
         'language'  => 'Sprache',
         'login_msg' => 'Angemeldet als:',
         'ai_predictions' => "KI-Vorhersagen anzeigen",
-        'token_verified' => "✅ Token erfolgreich überprüft"
     ],
     'it' => [
-        'title'     => 'MSPR 6.1',
+        'title'     => 'MSPR 6.3',
         'heading'   => 'Accesso ai grafici',
         'world'     => 'Coronavirus mondo',
         'daily'     => 'Coronavirus giornaliero',
@@ -91,10 +85,8 @@ $texts = [
         'language'  => 'Lingua',
         'login_msg' => 'Connesso come:',
         'ai_predictions' => "Visualizza le previsioni dell'IA",
-        'token_verified' => "✅ Token verificato con successo"
     ]
 ];
-
 $t = $texts[$lang] ?? $texts['fr'];
 ?>
 <!DOCTYPE html>
@@ -103,6 +95,7 @@ $t = $texts[$lang] ?? $texts['fr'];
     <meta charset="UTF-8">
     <title><?= $t['title'] ?></title>
     <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -111,6 +104,9 @@ $t = $texts[$lang] ?? $texts['fr'];
 </header>
 
 <h1><?= $t['heading'] ?></h1>
+
+<!-- ✅ Bouton lecture vocale -->
+<button id="readPageBtn" class="accessibility-button" aria-label="Lecture de la page">🔊 Lecture vocale</button>
 
 <?php if ($serverType === 'fr' && $isTokenVerified): ?>
   <p style="text-align: center; color: green;"><?= $t['token_verified'] ?></p>
@@ -189,6 +185,33 @@ $t = $texts[$lang] ?? $texts['fr'];
             header.appendChild(adminBtn);
         }
     }
+
+    // ✅ Lecture vocale selon serveur/langue
+    document.getElementById("readPageBtn").addEventListener("click", () => {
+        window.speechSynthesis.cancel();
+        const content = document.body.innerText;
+
+        // Détermination de la langue TTS
+        let voiceLang = "fr-FR"; // défaut
+        <?php if ($serverType === 'us'): ?>
+            voiceLang = "en-US";
+        <?php elseif ($serverType === 'ch'): ?>
+            voiceLang = {
+                fr: "fr-FR",
+                de: "de-DE",
+                it: "it-IT"
+            }["<?= $lang ?>"] || "fr-FR";
+        <?php else: ?>
+            voiceLang = "fr-FR";
+        <?php endif; ?>
+
+        const utterance = new SpeechSynthesisUtterance(content);
+        utterance.lang = voiceLang;
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        window.speechSynthesis.speak(utterance);
+    });
 </script>
 
 </body>

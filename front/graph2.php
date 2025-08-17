@@ -97,12 +97,13 @@ if ($server==='ch') $qs .= "&lang={$lang}";
 <html lang="<?= $lang ?>">
 <head>
     <meta charset="UTF-8">
-    <title>MSPR 6.1</title>
+    <title>MSPR 6.3</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <header><h2>MSPR 6.1</h2></header>
+    <header><h2>MSPR 6.3</h2></header>
     <h1><?= $pt['heading'] ?></h1>
 
     <!-- Formulaire de sélection -->
@@ -141,6 +142,44 @@ if ($server==='ch') $qs .= "&lang={$lang}";
 
     <!-- Mode daltonisme -->
     <label><input type="checkbox" id="colorblindToggle"> <?= $pt['colorblind'] ?></label>
+
+    <!-- Bouton pour lancer la lecture vocale -->
+    <button id="readGraphBtn" class="accessibility-button" aria-label="Lecture vocale du graphique">🔊 Voice playback</button>
+
+    <script>
+    document.getElementById("readGraphBtn").addEventListener("click", () => {
+        window.speechSynthesis.cancel(); // Arrête toute lecture en cours
+
+        const country1 = "<?= $selectedCountry1 ?>";
+        const country2 = "<?= $selectedCountry2 ?>";
+
+        const morts1   = <?= $countryData1->nbMort   ?? 0 ?>;
+        const soignes1 = <?= $countryData1->nbSoigne ?? 0 ?>;
+        const actifs1  = <?= $countryData1->nbActif  ?? 0 ?>;
+
+        const morts2   = <?= $countryData2->nbMort   ?? 0 ?>;
+        const soignes2 = <?= $countryData2->nbSoigne ?? 0 ?>;
+        const actifs2  = <?= $countryData2->nbActif  ?? 0 ?>;
+
+        const lang = "<?= $lang ?>";
+
+        const messages = {
+            fr: `Comparaison des cas COVID. ${country1} : ${morts1} morts, ${soignes1} soignés, ${actifs1} cas actifs. `
+            + `${country2} : ${morts2} morts, ${soignes2} soignés, ${actifs2} cas actifs.`,
+            en: `At the top of the screen, there is two boxes that let you choose the country to compare. COVID comparison between ${country1} and ${country2}. ${country1}: ${morts1} deaths, ${soignes1} recovered, ${actifs1} active cases. `
+            + `${country2}: ${morts2} deaths, ${soignes2} recovered, ${actifs2} active cases. At the bottom of the screen, there is 3 buttons that let you access other pages. Data for Coronavirus daily, Back to home, and data for Monkeypox.`,
+        };
+
+        const utterance = new SpeechSynthesisUtterance(messages[lang] || messages['en']);
+        utterance.lang = (lang === 'fr') ? 'fr-FR' : 'en-US';
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+
+        window.speechSynthesis.speak(utterance);
+    });
+    </script>
+
 
     <!-- Graphique -->
     <div id="chartContainer" style="height: 400px; width: 100%;"></div>

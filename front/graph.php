@@ -57,11 +57,11 @@ foreach ($paysInfos as $id => $info) {
 }
 asort($countries);
 
-// Étape 3 : Sélection pays
+// Étape 5 : Sélection pays
 $selectedIdPays = $_GET['country'] ?? array_key_first($countries);
 $selectedCountryName = $countries[$selectedIdPays] ?? "Inconnu";
 
-// 7) Dates mensuelles
+// Étape 6 : Générer dates
 $start = new DateTime($paysInfos[$selectedIdPays]['first_date']);
 $end   = new DateTime('2022-05-14');
 $dates = [];
@@ -70,7 +70,7 @@ while ($start <= $end) {
     $start->modify('first day of next month');
 }
 
-// 8) Préparation des séries de données
+// Étape 7 : Données graphiques
 $dataPointsCases  = [];
 $dataPointsDeaths = [];
 foreach ($data as $entry) {
@@ -83,22 +83,39 @@ foreach ($data as $entry) {
         }
     }
 }
+
+// Étape 8 : Résumé pour lecture vocale
+$maxCases = max(array_column($dataPointsCases, 'y'));
+$maxDeaths = max(array_column($dataPointsDeaths, 'y'));
+$lastCase = end($dataPointsCases)['y'] ?? 0;
+$lastDeath = end($dataPointsDeaths)['y'] ?? 0;
+
+$graphSummary = "At the top of the screen, there is one boxe that let you choose the country to analyse."
+              . "For $selectedCountryName, the highest number of active COVID cases was $maxCases and the highest number of deaths was $maxDeaths. "
+              . "As of the latest recorded date, there are $lastCase active cases and $lastDeath cumulative deaths."
+              . "At the bottom of the screen, there is 3 buttons that let you access other pages. Data for Coronavirus daily, the prediction of the AI for Coronavirus, and data for Monkeypox. There is also a button to go back to the home page.";
 ?>
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MSPR 6.1</title>
+  <title>MSPR 6.3</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
 <header>
-  <h2>MSPR 6.1</h2>
+  <h2>MSPR 6.3</h2>
 </header>
 
 <h1>Evolution of Active Cases and Deaths</h1>
+
+<!-- Résumé pour lecture vocale, masqué visuellement -->
+<div id="graphSummary" style="position: absolute; left: -9999px;" aria-live="polite">
+  <?= htmlspecialchars($graphSummary) ?>
+</div>
 
 <form method="get">
   <label for="country">Choose a country:</label>
@@ -117,6 +134,9 @@ foreach ($data as $entry) {
   <input type="checkbox" id="colorblindToggle"> Colorblind mode
 </label>
 
+<!-- Bouton lecture vocale -->
+<button id="readPageBtn" class="accessibility-button" aria-label="Read graph summary aloud">🔊 Voice playback</button>
+
 <div id="chartContainer" style="height: 370px; width: 100%; margin-top: 20px;"></div>
 
 <script>
@@ -128,7 +148,7 @@ window.onload = function () {
   const chart = new CanvasJS.Chart("chartContainer", {
     animationEnabled: true,
     title: { text: "COVID Data for <?= htmlspecialchars($selectedCountryName) ?>" },
-    subtitles: [{ text: "Active cases, deaths, cumulative cases and AI predictions", fontSize: 18 }],
+    subtitles: [{ text: "Active cases and cumulative deaths", fontSize: 18 }],
     axisY: { title: "Case Count" },
     legend: { cursor: "pointer", itemclick: toggleDataSeries },
     toolTip: { shared: true },
@@ -178,6 +198,20 @@ window.onload = function () {
 <div class="button-container">
   <a href="index_co.php?server=<?= $server ?>"><button>Back to home</button></a>
 </div>
+
+<!-- Lecture vocale uniquement du résumé -->
+<script>
+document.getElementById("readPageBtn").addEventListener("click", () => {
+    window.speechSynthesis.cancel();
+    const summary = document.getElementById("graphSummary").innerText;
+    const utterance = new SpeechSynthesisUtterance(summary);
+    utterance.lang = "en-US"; // Adapter selon le serveur si besoin
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+});
+</script>
 
 </body>
 </html>

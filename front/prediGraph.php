@@ -11,30 +11,10 @@ if ($server === 'ch' && ! in_array($lang, ['fr','de','it'])) {
     $lang = 'fr';
 }
 
-// 2) Vérification du token pour FR uniquement
-if ($server === 'fr') {
-    if (empty($_COOKIE['token'])) {
-        header('Location: form.php?server=fr');
-        exit;
-    }
-    // Appel de vérif
-    $opts = ['http' => [
-        'method' => 'GET',
-        'header' => "Authorization: Bearer {$_COOKIE['token']}\r\n"
-    ]];
-    $ctx = stream_context_create($opts);
-    $verify = @file_get_contents('http://localhost:3010/verify', false, $ctx);
-    if ($verify !== 'OK') {
-        setcookie('token', '', time()-3600, '/');
-        header('Location: form.php?server=fr');
-        exit;
-    }
-}
-
 // 3) Texte multilingue
 $texts = [
   'fr'=>[
-    'title'=>'MSPR 6.2 – Prédictions IA',
+    'title'=>'MSPR 6.3 – Prédictions IA',
     'heading'=>'Prédictions IA – Cas cumulés',
     'select'=>'Choisir un pays :',
     'colorblind'=>'Mode daltonisme',
@@ -42,7 +22,7 @@ $texts = [
     'home'=>'Accueil'
   ],
   'en'=>[
-    'title'=>'MSPR 6.2 – AI Predictions',
+    'title'=>'MSPR 6.3 – AI Predictions',
     'heading'=>'AI Predictions – Cumulative Cases',
     'select'=>'Choose a country:',
     'colorblind'=>'Colorblind mode',
@@ -50,7 +30,7 @@ $texts = [
     'home'=>'Home'
   ],
   'de'=>[
-    'title'=>'MSPR 6.2 – KI-Vorhersagen',
+    'title'=>'MSPR 6.3 – KI-Vorhersagen',
     'heading'=>'KI-Vorhersagen – Kumulative Fälle',
     'select'=>'Land wählen:',
     'colorblind'=>'Farbenblindmodus',
@@ -58,7 +38,7 @@ $texts = [
     'home'=>'Startseite'
   ],
   'it'=>[
-    'title'=>'MSPR 6.2 – Previsioni IA',
+    'title'=>'MSPR 6.3 – Previsioni IA',
     'heading'=>'Previsioni IA – Casi cumulativi',
     'select'=>'Scegli un paese:',
     'colorblind'=>'Modalità daltonico',
@@ -71,7 +51,7 @@ $t = $texts[$lang] ?? $texts['fr'];
 // 4) Appel API + traitement inchangé
 $url = "http://" . [
     'us'=>'localhost:3020',
-    'fr'=>'localhost:3010',
+    'fr'=>'localhost:3020',
     'ch'=>'localhost:3020'
 ][$server] . "/coronavirus_daily";
 
@@ -167,6 +147,7 @@ if (isset($preds['predictions'][0])) {
   <title><?= $t['title'] ?></title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
   window.onload=function(){
     const normal=["#9B59B6","#009E73"],dalton=["#CC79A7","#2ECC71"];
@@ -199,8 +180,7 @@ if (isset($preds['predictions'][0])) {
   </script>
 </head>
 <body>
-
-<header><h2>MSPR 6.2</h2></header>
+<header><h2>MSPR 6.3</h2></header>
 <h1><?= $t['heading'] ?></h1>
 
 <?php if($server==='ch'): ?>
@@ -231,6 +211,10 @@ if (isset($preds['predictions'][0])) {
 </form>
 
 <label><input type="checkbox" id="colorblindToggle"> <?= $t['colorblind'] ?></label>
+
+<!-- ✅ Bouton lecture vocale -->
+<button id="readGraphBtn" class="accessibility-button" aria-label="Lecture graphique">🔊 Voice playback</button>
+
 <div id="chartContainer" style="height:400px;width:100%;margin-top:20px;"></div>
 
 <div class="button-container">
@@ -238,11 +222,65 @@ if (isset($preds['predictions'][0])) {
     <a href="graph.php?server=us"><button><?= $t['back_data'] ?></button></a>
     <a href="index_co.php?server=us"><button><?= $t['home'] ?></button></a>
   <?php elseif($server==='fr'): ?>
-    <a href="index_co.php?server=fr"><button><?= $t['home'] ?></button></a>
+    <a href="index_co_fr.php?server=fr"><button><?= $t['home'] ?></button></a>
   <?php else: /* ch */ ?>
     <a href="index_co.php?server=ch&lang=<?= $lang ?>"><button><?= $t['home'] ?></button></a>
   <?php endif; ?>
 </div>
+
+<!-- ✅ Script de lecture vocale -->
+<script>
+document.getElementById("readGraphBtn").addEventListener("click", function() {
+    const synth = window.speechSynthesis;
+    synth.cancel();
+
+    // Détermine la langue
+    const lang = {
+        fr: "fr-FR",
+        en: "en-US",
+        de: "de-DE",
+        it: "it-IT"
+    }["<?= $lang ?>"];
+
+    const country = "<?= addslashes($selectedCountryName) ?>";
+    const cumulData = <?= json_encode($dataPointsCumul, JSON_NUMERIC_CHECK) ?>;
+    const predData  = <?= json_encode($dataPointsPredicted, JSON_NUMERIC_CHECK) ?>;
+
+    let spokenText = {
+        fr: `En haut de l'écran ce trouve un bouton permetant de choisir le pays à prédire avec l'IA. Lecture du cumul cas total pour le Covid et les prédictions de l'IA pour ${country}. `,
+        en: `At the top of the screen, there is a button to select the country to predict with the AI. Reading cumulative cases for Covid and AI prediction for ${country}. `,
+        de: `Oben auf dem Bildschirm befindet sich eine Schaltfläche, um das Land auszuwählen, das mit der KI vorhergesagt werden soll. Daten für ${country} werden vorgelesen. `,
+        it: `In alto allo schermo c'è un pulsante per scegliere il paese da prevedere con l'IA. Lettura del totale dei casi di Covid e previsioni dell'IA per ${country}. `
+    }["<?= $lang ?>"];
+
+    if (cumulData.length > 0) {
+        const lastReal = cumulData[cumulData.length - 1];
+        const date = new Date(lastReal.x).toLocaleDateString("<?= $lang ?>", { year: 'numeric', month: 'long' });
+        spokenText += {
+            fr: `Cas cumulés au ${date} : ${lastReal.y}. `,
+            en: `Cumulative cases as of ${date}: ${lastReal.y}. `,
+            de: `Kumulative Fälle bis ${date}: ${lastReal.y}. `,
+            it: `Casi cumulativi al ${date}: ${lastReal.y}. `
+        }["<?= $lang ?>"];
+    }
+
+    if (predData.length > 1) {
+        const lastPred = predData[predData.length - 1];
+        const date = new Date(lastPred.x).toLocaleDateString("<?= $lang ?>", { year: 'numeric', month: 'long' });
+        spokenText += {
+            fr: `Prédiction IA pour ${date} : ${lastPred.y}. En bas de l'écran, il y a un bouton qui permet de retourner à l'accueil.`,
+            en: `AI prediction for ${date}: ${lastPred.y}. At the bottom of the screen, there are three buttons that let you access other pages. Coronavirus global data, Back to home, and Coronavirus daily data.`,
+            de: `KI-Vorhersage für ${date}: ${lastPred.y}. Unten auf dem Bildschirm befindet sich eine Schaltfläche, um zur Startseite zurückzukehren.`,
+            it: `Previsione IA per ${date}: ${lastPred.y}. In basso allo schermo c'è un pulsante che permette di tornare alla home.`
+        }["<?= $lang ?>"];
+    }
+
+    const utterance = new SpeechSynthesisUtterance(spokenText);
+    utterance.lang = lang;
+    utterance.rate = 1;
+    synth.speak(utterance);
+});
+</script>
 
 </body>
 </html>
