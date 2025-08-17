@@ -67,7 +67,7 @@ const connection = mysql.createPool({
 
 app.use(express.json());
 
-// nettoyage dynamique des paths
+
 if (pays === "FR" || pays === "CH") {
   const allowedPaths = ["/users", "/users/{id}", "/users/login"];
   for (const path in swaggerDocument.paths) {

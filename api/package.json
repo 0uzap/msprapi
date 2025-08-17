@@ -1,10 +1,12 @@
 {
   "name": "mspr",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000m\u0000s\u0000p\u0000r\u0000a\u0000p\u0000i\u0000\r\u0000 \u0000",
+  "description": "mspr api",
   "main": "index.js",
   "scripts": {
-    "test": "dotenv -e .env.test jest"
+    "test": "dotenv -e .env.test jest --runInBand",
+    "test:cov": "dotenv -e .env.test jest --runInBand --coverage",
+    "test:fr": "cross-env PAYS_CIBLE=FR dotenv -e .env.test jest tests/policy-fr-only-users.test.js --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -26,5 +28,18 @@
     "dotenv-cli": "^8.0.0",
     "jest": "^30.0.3",
     "supertest": "^7.1.1"
+  },
+  "jest": {
+  "testEnvironment": "node",
+  "globalTeardown": "<rootDir>/tests/jest.teardown.js",
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "html", "lcov"],
+  "collectCoverageFrom": [
+    "index.js",
+    "middleware/**/*.js",
+    "!**/node_modules/**",
+    "!**/tests/**"
+  ]
   }
 }
