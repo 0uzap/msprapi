@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from flask import Response
 from pydantic import BaseModel
 from typing import List
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 # from jose import JWTError, jwt
 from sklearn.ensemble import RandomForestRegressor
 # import bcrypt
@@ -11,6 +13,10 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 app = FastAPI(title="IA Prediction API")
+
+REQUEST_COUNT = Counter("prediction_requests_total", "Nombre total de requêtes de prédiction")
+REQUEST_ERRORS = Counter("prediction_errors_total", "Nombre total d'erreurs de prédiction")
+REQUEST_LATENCY = Histogram("prediction_request_latency_seconds", "Temps de latence des prédictions")
 
 app.add_middleware(
     CORSMiddleware,
@@ -988,14 +994,15 @@ class LoginRequest(BaseModel):
 #     return {"access_token": access_token, "token_type": "bearer"}
 
 
-
-
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(data: PredictionRequest):
+    start_time = time.time()
+    REQUEST_COUNT.inc()
+
     try:
         #if not isInBDD(data.token) :
             #raise ValueError("L'utilisateur n'est pas dans la BDD.")
-            
+
         if len(data.features) != 6:
             raise ValueError("La liste features doit contenir exactement 6 valeurs.")
         
@@ -1022,4 +1029,11 @@ async def predict(data: PredictionRequest):
         return PredictionResponse(predictions=corrected_predictions)
 
     except Exception as e:
+        REQUEST_ERRORS.inc()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        REQUEST_LATENCY.observe(time.time() - start_time)
+
+@app.get("/metrics")
+async def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
