@@ -20,7 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# # Connexion à la BDD
+
+# Connexion à la BDD
 # db = mysql.connector.connect(
 #     host="localhost",
 #     user="root",
@@ -957,6 +958,7 @@ class PredictionRequest(BaseModel):
     # token: str
 
 
+
 class PredictionResponse(BaseModel):
     predictions: List[List[float]]
 
@@ -991,8 +993,8 @@ class LoginRequest(BaseModel):
 @app.post("/predict", response_model=PredictionResponse)
 async def predict(data: PredictionRequest):
     try:
-        if not isInBDD(data.token) :
-            raise ValueError("L'utilisateur n'est pas dans la BDD.")
+        #if not isInBDD(data.token) :
+            #raise ValueError("L'utilisateur n'est pas dans la BDD.")
             
         if len(data.features) != 6:
             raise ValueError("La liste features doit contenir exactement 6 valeurs.")
